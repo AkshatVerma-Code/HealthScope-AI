@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Image Analysis Results — LabSense AI{% endblock %}
+
+{% block content %}
+<div class="section-sm" style="max-width:860px;">
+
+  <!-- Header -->
+  <div class="d-flex justify-between align-center flex-wrap gap-md mb-xl" id="img-result-header">
+    <div>
+      <h1 style="font-family:'Space Grotesk',sans-serif; font-size:1.6rem; font-weight:700;" id="img-result-title">
+        🧠 Image Diagnosis Results
+      </h1>
+      <p class="text-secondary text-sm mt-sm">
+        {{ patient.full_name }} · {{ patient.age }} yrs · {{ patient.gender }} ·
+        <span class="badge badge-purple">{{ medical_image.get_image_type_display }}</span>
+      </p>
+    </div>
+    <div class="d-flex gap-md flex-wrap">
+      <a href="{% url 'select_analysis' %}" class="btn btn-secondary btn-sm" id="new-img-analysis-btn">+ New Analysis</a>
+    </div>
+  </div>
+
+  <!-- Main Result Grid -->
+  <div class="grid-2" style="gap:1.5rem; align-items:start;" id="img-result-grid">
+
+    <!-- Uploaded Image Preview -->
+    <div class="card animate-fade-in-up" id="uploaded-image-card">
+      <h2 class="card-title mb-lg">📷 Uploaded Scan</h2>
+      {% if medical_image.uploaded_file %}
+        <img src="{{ medical_image.uploaded_file.url }}"
+             alt="Uploaded {{ medical_image.get_image_type_display }}"
+             id="scan-preview-img"
+             style="width:100%; border-radius:var(--radius-md); border:1px solid var(--border);" />
+      {% else %}
+        <div class="empty-state"><span class="empty-state-icon">🖼️</span><div>No image available</div></div>
+      {% endif %}
+    </div>
+
+    <!-- Prediction Result Card -->
+    <div class="card animate-fade-in-up animate-delay-1" id="prediction-card">
+      <h2 class="card-title mb-md">🎯 AI Prediction</h2>
+
+      {% if not medical_image.model_available %}
+        <div class="alert alert-warning mb-lg" id="stub-warning-alert">
+          ⚠️ Model file not found — showing stub prediction.
+          Drop the <code>.keras</code> file in <code>Models/</code> to activate real inference.
+        </div>
+      {% endif %}
+
+      <!-- Confidence Ring -->
+      <div class="confidence-ring-wrapper mb-lg" id="confidence-ring-wrapper">
+        <canvas class="confidence-ring-canvas"
+                data-value="{{ medical_image.confidence|default:0 }}"
+                id="confidence-ring-canvas"
+                aria-label="Confidence: {{ medical_image.confidence|floatformat:1 }}%">
+        </canvas>
+        <div class="confidence-center">
+          <div class="confidence-value" id="confidence-display">{{ medical_image.confidence|floatformat:1 }}%</div>
+          <div class="confidence-label">Confidence</div>
+        </div>
+      </div>
+
+      <!-- Predicted Class -->
+      <div class="text-center mb-lg" id="prediction-display">
+        <div class="text-muted text-xs" style="letter-spacing:0.08em; text-transform:uppercase; margin-bottom:0.4rem;">Predicted Condition</div>
+        <div style="font-family:'Space Grotesk',sans-serif; font-size:1.5rem; font-weight:700; color:var(--text-primary);">
+          {{ medical_image.prediction }}
+        </div>
+        <div class="text-secondary text-sm mt-sm">{{ medical_image.get_image_type_display }}</div>
+      </div>
+
+      <!-- Status indicator -->
+      {% if medical_image.confidence >= 85 %}
+        <div class="badge badge-green w-full text-center" style="justify-content:center;" id="confidence-badge">
+          ✅ High Confidence Prediction
+        </div>
+      {% elif medical_image.confidence >= 60 %}
+        <div class="badge" style="background:rgba(245,158,11,0.12); color:var(--risk-medium); border:1px solid rgba(245,158,11,0.25); justify-content:center; width:100%;" id="confidence-badge">
+          ⚠️ Moderate Confidence
+        </div>
+      {% else %}
+        <div class="badge badge-red" style="justify-content:center; width:100%;" id="confidence-badge">
+          ❗ Low Confidence — Consult a Doctor
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  <!-- Class Scores Breakdown -->
+  {% if class_scores %}
+  <div class="card mt-xl animate-fade-in-up animate-delay-2" id="class-scores-card">
+    <h2 class="card-title mb-lg">📊 Class Probability Breakdown</h2>
+    <ul class="class-scores" aria-label="Class probability scores">
+      {% for score in class_scores %}
+      <li class="class-score-item" id="score-item-{{ forloop.counter }}">
+        <span class="class-score-label">{{ score.label }}</span>
+        <div class="class-score-bar-wrapper" role="progressbar"
+             aria-valuenow="{{ score.score }}" aria-valuemin="0" aria-valuemax="100">
+          <div class="class-score-bar"
+               data-value="{{ score.score }}"
+               id="score-bar-{{ forloop.counter }}"
+               style="{% if score.label == medical_image.prediction %}background:var(--gradient-purple){% endif %}">
+          </div>
+        </div>
+        <span class="class-score-val">{{ score.score|floatformat:1 }}%</span>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  <!-- Clinical Guidance -->
+  <div class="card mt-xl animate-fade-in-up animate-delay-3" id="clinical-guidance-card">
+    <h2 class="card-title mb-md">💡 Clinical Guidance</h2>
+    <div class="grid-2">
+      {% if 'No Tumor' in medical_image.prediction or 'Normal' in medical_image.prediction or 'No Impairment' in medical_image.prediction %}
+        <div class="rec-item">
+          <span class="rec-num">✓</span>
+          No significant abnormality detected in this scan. Continue regular health check-ups.
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">✓</span>
+          Maintain a healthy lifestyle with regular exercise and balanced nutrition.
+        </div>
+      {% else %}
+        <div class="rec-item">
+          <span class="rec-num">1</span>
+          Please consult a specialist (Neurologist / Pulmonologist) for professional evaluation.
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">2</span>
+          This AI result is preliminary — a confirmed diagnosis requires clinical examination.
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">3</span>
+          Additional imaging or laboratory tests may be required for confirmation.
+        </div>
+        <div class="rec-item">
+          <span class="rec-num">4</span>
+          Do not self-medicate. Follow your doctor's guidance.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="alert alert-warning mt-xl animate-on-scroll" id="img-disclaimer-alert">
+    ⚠️ <strong>Disclaimer:</strong> This AI-generated result is for informational purposes only.
+    It is not a clinical diagnosis and must not replace professional medical evaluation.
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="d-flex justify-between align-center flex-wrap gap-md mt-xl" id="img-actions">
+    <a href="{% url 'dashboard' session_id=patient.session_id %}" class="btn btn-secondary" id="view-dashboard-img-btn">
+      📊 View Dashboard
+    </a>
+    <a href="{% url 'image_upload' %}" class="btn btn-purple" id="upload-another-btn">
+      🔄 Upload Another Scan
+    </a>
+  </div>
+
+</div>
+{% endblock %}

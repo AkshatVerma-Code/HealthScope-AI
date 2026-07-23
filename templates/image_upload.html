@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Upload Medical Image — LabSense AI{% endblock %}
+
+{% block content %}
+<div class="section-sm" style="max-width:720px;">
+
+  <!-- Progress Steps -->
+  <div class="steps-bar" aria-label="Progress steps">
+    <div class="step-item done"><div class="step-circle">✓</div><span class="step-label">Patient Info</span></div>
+    <div class="step-item done"><div class="step-circle">✓</div><span class="step-label">Select Analysis</span></div>
+    <div class="step-item active"><div class="step-circle">3</div><span class="step-label">Upload Image</span></div>
+    <div class="step-item"><div class="step-circle">4</div><span class="step-label">Results</span></div>
+  </div>
+
+  <div class="card animate-fade-in-up" id="image-upload-card">
+
+    <div class="d-flex align-center gap-md mb-xl">
+      <div class="feature-icon purple" style="margin:0;">🧠</div>
+      <div>
+        <h1 class="card-title" style="font-size:1.4rem;">Medical Image Diagnosis</h1>
+        <p class="card-subtitle">Patient: <strong>{{ patient.full_name }}</strong> · {{ patient.age }} yrs · {{ patient.gender }}</p>
+      </div>
+    </div>
+
+    <form method="post" enctype="multipart/form-data" id="analysis-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="image_type" id="image-type-hidden" value="BRAIN_MRI" />
+
+      <!-- Image Type Selector -->
+      <div class="form-group">
+        <label class="form-label">Scan Type <span style="color:var(--risk-high);">*</span></label>
+        <div class="grid-2" style="gap:1rem;" id="image-type-grid">
+
+          <div class="image-type-card selected card card-sm text-center"
+               data-type="BRAIN_MRI"
+               id="type-brain-card"
+               role="button"
+               tabindex="0"
+               style="cursor:pointer; border-width:2px; transition:var(--transition);"
+               aria-label="Select Brain MRI">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">🧠</div>
+            <div class="font-semibold mb-sm">Brain MRI</div>
+            <div class="choice-tags" style="justify-content:center;">
+              <span class="tag tag-purple">Tumor</span>
+              <span class="tag tag-purple">Meningioma</span>
+              <span class="tag tag-purple">Glioma</span>
+            </div>
+          </div>
+
+          <div class="image-type-card card card-sm text-center"
+               data-type="CHEST_XRAY"
+               id="type-chest-card"
+               role="button"
+               tabindex="0"
+               style="cursor:pointer; border-width:2px; transition:var(--transition);"
+               aria-label="Select Chest X-ray">
+            <div style="font-size:2rem; margin-bottom:0.5rem;">🫁</div>
+            <div class="font-semibold mb-sm">Chest X-ray</div>
+            <div class="choice-tags" style="justify-content:center;">
+              <span class="tag tag-teal">Pneumonia</span>
+              <span class="tag tag-teal">Tuberculosis</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- File Upload Zone -->
+      <div class="form-group">
+        <label class="form-label">Upload Image <span style="color:var(--risk-high);">*</span></label>
+        <div class="upload-zone" id="image-upload-zone" role="button" aria-label="Upload medical image">
+          <input type="file" name="medical_image" id="image-file-input" accept="image/*" required />
+          <span class="upload-icon">🖼️</span>
+          <div class="upload-title">Drag & drop your scan here</div>
+          <div class="upload-subtitle">Supports PNG, JPG, JPEG · Max 20 MB</div>
+        </div>
+        <div class="upload-preview" id="image-upload-preview">
+          <span>📎</span>
+          <span id="image-preview-filename" class="text-sm font-semibold" style="color:var(--teal);"></span>
+          <span class="text-muted text-xs">— Ready to upload</span>
+        </div>
+        {% if error %}
+          <div class="form-error mt-sm">{{ error }}</div>
+        {% endif %}
+      </div>
+
+      <!-- Info Alert -->
+      <div class="alert alert-info" id="dl-info-alert">
+        <span>🤖</span>
+        <div>
+          <strong>Deep Learning Analysis:</strong> Our TensorFlow model will classify your scan
+          and return the predicted condition with a confidence score.
+          {% if not request.session.patient_session_id %}
+          <br><span style="color:var(--risk-medium);">⚠️ Note: Some models are being added — stub predictions shown when model unavailable.</span>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="d-flex justify-between align-center mt-xl">
+        <a href="{% url 'select_analysis' %}" class="btn btn-secondary" id="back-select-img-btn">← Back</a>
+        <button type="submit" class="btn btn-purple" id="image-submit-btn">
+          🧠 Analyse Image →
+        </button>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Highlight selected image type card
+  document.querySelectorAll('.image-type-card').forEach(card => {
+    card.addEventListener('click', () => {
+      document.querySelectorAll('.image-type-card').forEach(c => {
+        c.style.borderColor = 'var(--border)';
+        c.style.background = 'var(--gradient-card)';
+      });
+      card.style.borderColor = 'var(--purple)';
+      card.style.background = 'var(--purple-glow)';
+    });
+    // Keyboard accessible
+    card.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') card.click();
+    });
+  });
+  // Init first card
+  document.querySelector('.image-type-card.selected').style.borderColor = 'var(--purple)';
+  document.querySelector('.image-type-card.selected').style.background = 'var(--purple-glow)';
+</script>
+{% endblock %}

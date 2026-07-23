@@ -1,0 +1,9 @@
+Django>=5.2
+mistralai
+Pillow
+reportlab
+python-dotenv
+scikit-learn
+joblib
+numpy
+pandas
