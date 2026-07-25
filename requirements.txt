@@ -7,3 +7,8 @@ scikit-learn
 joblib
 numpy
 pandas
+gunicorn
+whitenoise
+dj-database-url
+psycopg2-binary
+tensorflow-cpu

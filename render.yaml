@@ -1,0 +1,24 @@
+databases:
+  - name: healthscope-db
+    databaseName: healthscope
+    user: healthscope
+
+services:
+  - type: web
+    name: healthscope-ai
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn HealthScopeAI.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: healthscope-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: WEB_CONCURRENCY
+        value: 4
+      - key: DEBUG
+        value: "False"
+      - key: MISTRAL_API_KEY
+        sync: false # Requires manual entry in the Render dashboard
