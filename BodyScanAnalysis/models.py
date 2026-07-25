@@ -7,12 +7,13 @@ class MedicalImage(models.Model):
         ('BRAIN_MRI', 'Brain MRI'),
         ('CHEST_XRAY', 'Chest X-ray'),
         ('ALZHEIMER', 'Alzheimer MRI'),
+        ('BRAIN_TUMOR_SEGMENTATION', 'Brain Tumor Segmentation'),
     ]
 
     session = models.ForeignKey(
         PatientSession, on_delete=models.CASCADE, related_name='medical_images'
     )
-    image_type = models.CharField(max_length=20, choices=IMAGE_TYPE_CHOICES)
+    image_type = models.CharField(max_length=30, choices=IMAGE_TYPE_CHOICES)
     uploaded_file = models.ImageField(upload_to='medical_images/')
     prediction = models.CharField(max_length=200, blank=True)
     confidence = models.FloatField(null=True, blank=True)
