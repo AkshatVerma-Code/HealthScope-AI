@@ -15,6 +15,7 @@ def image_upload(request):
     IMAGE_CHOICES = [
         ('BRAIN_MRI', 'Brain MRI — Tumor / Glioma / Meningioma'),
         ('CHEST_XRAY', 'Chest X-ray — Pneumonia / Tuberculosis'),
+        ('ALZHEIMER', 'Alzheimer MRI — Disease Staging'),
     ]
 
     if request.method == 'POST':

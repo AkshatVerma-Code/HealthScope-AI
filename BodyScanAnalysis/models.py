@@ -6,6 +6,7 @@ class MedicalImage(models.Model):
     IMAGE_TYPE_CHOICES = [
         ('BRAIN_MRI', 'Brain MRI'),
         ('CHEST_XRAY', 'Chest X-ray'),
+        ('ALZHEIMER', 'Alzheimer MRI'),
     ]
 
     session = models.ForeignKey(

@@ -2,10 +2,10 @@
 ML Prediction Engine + Recommendation System
 
 Models:
-  - Diabetes   → Models/Diabetes.pkl  (+ Models/scaler_diabetes.pkl)
-  - Kidney     → Models/kidney.pkl    (+ Models/kidney_scaler.pkl)
+  - Diabetes   → Models/Diabetes.pkl            (+ Models/scaler_diabetes.pkl)
+  - Kidney     → Models/kidney_disease_model.pkl (+ Models/kidney_scaler.pkl)
+  - Anemia     → Models/Anemia.pkl               (+ Models/Anemia_scaler.pkl)
   - Liver      → Models/liver.pkl  [STUB — add model file when ready]
-  - Anemia     → Models/anemia.pkl [STUB — add model file when ready]
 
 Feature Maps (exactly matching the trained model column order):
   Diabetes:
@@ -13,10 +13,27 @@ Feature Maps (exactly matching the trained model column order):
     blood_glucose_level, gender_Female, gender_Male,
     smoking_history_No, smoking_history_Yes
 
-  Kidney:
-    Blood Pressure, Specific Gravity, Albumin, Sugar, RBC,
-    Blood Urea, Serum Creatinine, Sodium, Potassium,
-    Hemoglobin, WBC Count, RBC Count, Hypertension
+  Kidney (kidney_disease_model.pkl — abbreviated names):
+    Bp   : Blood Pressure
+    Sg   : Specific Gravity
+    Al   : Albumin
+    Su   : Sugar
+    Rbc  : Red Blood Cells        (0 = normal, 1 = abnormal)
+    Bu   : Blood Urea
+    Sc   : Serum Creatinine
+    Sod  : Sodium
+    Pot  : Potassium
+    Hemo : Hemoglobin
+    Wbcc : White Blood Cell Count
+    Rbcc : Red Blood Cell Count
+    Htn  : Hypertension           (1 = Yes, 0 = No)
+
+  Anemia (Anemia.pkl):
+    Gender     : 0 = Female, 1 = Male
+    Hemoglobin : g/dL
+    MCH        : Mean Corpuscular Haemoglobin (pg)
+    MCHC       : Mean Corpuscular Haemoglobin Concentration (g/dL)
+    MCV        : Mean Corpuscular Volume (fL)
 """
 
 import os
@@ -65,11 +82,15 @@ DIABETES_FEATURES = [
     'smoking_history_No', 'smoking_history_Yes',
 ]
 
+# kidney_disease_model.pkl — abbreviated feature names
 KIDNEY_FEATURES = [
-    'Blood Pressure', 'Specific Gravity', 'Albumin', 'Sugar', 'RBC',
-    'Blood Urea', 'Serum Creatinine', 'Sodium', 'Potassium',
-    'Hemoglobin', 'WBC Count', 'RBC Count', 'Hypertension',
+    'Bp', 'Sg', 'Al', 'Su', 'Rbc',
+    'Bu', 'Sc', 'Sod', 'Pot',
+    'Hemo', 'Wbcc', 'Rbcc', 'Htn',
 ]
+
+# Anemia.pkl — feature names as used in training
+ANEMIA_FEATURES = ['Gender', 'Hemoglobin', 'MCH', 'MCHC', 'MCV']
 
 # Default fill values (medically-normal defaults)
 DIABETES_DEFAULTS = {
@@ -79,11 +100,30 @@ DIABETES_DEFAULTS = {
     'smoking_history_No': 1, 'smoking_history_Yes': 0,
 }
 
+# Medically-normal defaults for the abbreviated kidney feature set
 KIDNEY_DEFAULTS = {
-    'Blood Pressure': 80, 'Specific Gravity': 1.01771249, 'Albumin': 0,
-    'Sugar': 0, 'RBC': 0, 'Blood Urea': 15, 'Serum Creatinine': 0.9,
-    'Sodium': 140, 'Potassium': 4.0, 'Hemoglobin': 14.0,
-    'WBC Count': 7500, 'RBC Count': 5.0, 'Hypertension': 0,
+    'Bp': 80,           # Blood Pressure (mmHg)
+    'Sg': 1.01771249,   # Specific Gravity (training-set mean)
+    'Al': 0,            # Albumin (0–5 scale)
+    'Su': 0,            # Sugar (0–5 scale)
+    'Rbc': 0,           # Red Blood Cells flag (0=normal)
+    'Bu': 15,           # Blood Urea (mg/dL)
+    'Sc': 0.9,          # Serum Creatinine (mg/dL)
+    'Sod': 140,         # Sodium (mEq/L)
+    'Pot': 4.0,         # Potassium (mEq/L)
+    'Hemo': 14.0,       # Hemoglobin (g/dL)
+    'Wbcc': 7500,       # WBC Count (cells/cumm)
+    'Rbcc': 5.0,        # RBC Count (millions/cmm)
+    'Htn': 0,           # Hypertension (1=Yes, 0=No)
+}
+
+# Medically-normal defaults for Anemia feature set
+ANEMIA_DEFAULTS = {
+    'Gender':     1,      # 0=Female, 1=Male (male assumed when unknown)
+    'Hemoglobin': 13.5,   # g/dL  (lower normal for adults)
+    'MCH':        27.5,   # pg    (normal range 27–33)
+    'MCHC':       33.0,   # g/dL  (normal range 32–36)
+    'MCV':        85.0,   # fL    (normal range 80–100)
 }
 
 
@@ -121,10 +161,10 @@ def _enrich_with_patient(params: dict, patient) -> dict:
         # data always wins over OCR-extracted 0 defaults.
         if getattr(patient, 'hypertension', False):
             enriched['hypertension'] = 1
-            enriched['Hypertension'] = 1   # for Kidney model
+            enriched['Htn'] = 1   # abbreviated key for kidney_disease_model.pkl
         else:
             enriched.setdefault('hypertension', 0)
-            enriched.setdefault('Hypertension', 0)
+            enriched.setdefault('Htn', 0)
 
         if getattr(patient, 'heart_disease', False):
             enriched['heart_disease'] = 1
@@ -135,10 +175,10 @@ def _enrich_with_patient(params: dict, patient) -> dict:
             enriched.setdefault('diabetes_history', 1)
 
         if getattr(patient, 'blood_infection', False):
-            # blood_infection maps to RBC flag in KFT model
-            enriched['RBC'] = 1
+            # blood_infection maps to Rbc flag in kidney_disease_model.pkl
+            enriched['Rbc'] = 1
         else:
-            enriched.setdefault('RBC', 0)
+            enriched.setdefault('Rbc', 0)
 
     return enriched
 
@@ -181,37 +221,73 @@ def predict_diabetes(params: dict, patient=None) -> dict:
 
 
 def predict_kidney(params: dict, patient=None) -> dict:
-    model = _load('kidney.pkl')
+    """
+    Predict kidney disease using kidney_disease_model.pkl.
+
+    The model outputs a binary class (0 = no disease, 1 = disease).
+    We use predict_proba when available to obtain a continuous risk %;
+    otherwise we map the hard prediction to 0 % or 100 %.
+
+    Feature order (must match training):
+        Bp, Sg, Al, Su, Rbc, Bu, Sc, Sod, Pot, Hemo, Wbcc, Rbcc, Htn
+    """
+    model = _load('kidney_disease_model.pkl')
     scaler = _load('kidney_scaler.pkl')
 
     if model is None:
         return {'Kidney Disease': {'risk': 0, 'status': 'Model unavailable', 'available': False}}
 
-    # Enrich with patient info so Hypertension and RBC flags from the
-    # patient form override any OCR-extracted 0 defaults.
+    # Enrich with patient info so Htn and Rbc flags from the patient form
+    # override any OCR-extracted 0 defaults.
     enriched = _enrich_with_patient(params, patient)
 
-    # Pin Specific Gravity to the training-set mean (not present in most reports).
-    enriched['Specific Gravity'] = 1.01771249
+    # Map long-form OCR keys → abbreviated model keys (best-effort)
+    ocr_to_abbr = {
+        'Blood Pressure':   'Bp',
+        'Specific Gravity': 'Sg',
+        'Albumin':          'Al',
+        'Sugar':            'Su',
+        'RBC':              'Rbc',
+        'Blood Urea':       'Bu',
+        'Serum Creatinine': 'Sc',
+        'Sodium':           'Sod',
+        'Potassium':        'Pot',
+        'Hemoglobin':       'Hemo',
+        'WBC Count':        'Wbcc',
+        'RBC Count':        'Rbcc',
+        'Hypertension':     'Htn',
+    }
+    for long_key, abbr_key in ocr_to_abbr.items():
+        if long_key in enriched and abbr_key not in enriched:
+            enriched[abbr_key] = enriched[long_key]
+
+    # Pin Specific Gravity to training-set mean if not extracted from the report.
+    enriched.setdefault('Sg', 1.01771249)
 
     X = _build_feature_vector(enriched, KIDNEY_FEATURES, KIDNEY_DEFAULTS)
 
     try:
         if scaler is not None:
-            # Scaler expects all features EXCEPT 'RBC' (idx 4) and 'Hypertension' (idx 12)
-            # which are booleans. Indices: 0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11
+            # Scale all continuous features; skip boolean flags Rbc (idx 4) and Htn (idx 12)
             idx = [0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11]
             cont_features = X[0, idx].reshape(1, -1)
             scaled_cont = scaler.transform(cont_features)[0]
             for i, p in enumerate(idx):
                 X[0, p] = scaled_cont[i]
-                
-        prob = model.predict_proba(X)[0][1] * 100
+
+        # Prefer probability output; fall back to hard 0/1 prediction
+        if hasattr(model, 'predict_proba'):
+            prob = model.predict_proba(X)[0][1] * 100
+        else:
+            pred = int(model.predict(X)[0])
+            prob = 100.0 if pred == 1 else 0.0
+
         return {
             'Kidney Disease': {
                 'risk': round(prob, 1),
                 'status': _risk_label(prob),
                 'available': True,
+                'prediction': 1 if prob >= 50 else 0,   # binary label for display
             }
         }
     except Exception as e:
@@ -234,16 +310,74 @@ def predict_liver(params: dict, patient=None) -> dict:
 
 
 def predict_anemia(params: dict, patient=None) -> dict:
-    model = _load('anemia.pkl')
+    """
+    Predict Anemia risk using Anemia.pkl + Anemia_scaler.pkl.
+
+    Feature order (must match training):
+        Gender (0=Female, 1=Male), Hemoglobin, MCH, MCHC, MCV
+
+    The model outputs binary 0/1; predict_proba is used when available
+    to get a continuous risk percentage.
+    """
+    model = _load('Anemia.pkl')
+    scaler = _load('Anemia_scaler.pkl')
+
     if model is None:
+        return {'Anemia': {'risk': None, 'status': 'Model unavailable', 'available': False}}
+
+    # Build working params dict; start with what was extracted / passed in
+    enriched = dict(params)
+
+    # Encode Gender: accept string ('Male'/'Female') or numeric (1/0)
+    # Priority: explicit param → patient profile → default (Male=1)
+    gender_raw = enriched.get('Gender', None)
+    if gender_raw is None and patient is not None:
+        gender_raw = getattr(patient, 'gender', None)
+    if isinstance(gender_raw, str):
+        enriched['Gender'] = 0 if gender_raw.strip().lower() == 'female' else 1
+    elif gender_raw is None:
+        enriched['Gender'] = ANEMIA_DEFAULTS['Gender']
+    else:
+        enriched['Gender'] = int(gender_raw)
+
+    # Map alternate OCR key names → expected model keys
+    ocr_aliases = {
+        'Haemoglobin': 'Hemoglobin',
+        'Hb':          'Hemoglobin',
+        'HGB':         'Hemoglobin',
+    }
+    for alias, canonical in ocr_aliases.items():
+        if alias in enriched and canonical not in enriched:
+            enriched[canonical] = enriched[alias]
+
+    X = _build_feature_vector(enriched, ANEMIA_FEATURES, ANEMIA_DEFAULTS)
+
+    try:
+        if scaler is not None:
+            # Scaler was fitted on 4 continuous features only: Hemoglobin, MCH, MCHC, MCV
+            # Gender (index 0) is binary and must NOT be passed to the scaler.
+            cont_idx = [1, 2, 3, 4]  # Hemoglobin, MCH, MCHC, MCV
+            cont_scaled = scaler.transform(X[0, cont_idx].reshape(1, -1))[0]
+            for i, p in enumerate(cont_idx):
+                X[0, p] = cont_scaled[i]
+
+        if hasattr(model, 'predict_proba'):
+            prob = model.predict_proba(X)[0][1] * 100
+        else:
+            pred = int(model.predict(X)[0])
+            prob = 100.0 if pred == 1 else 0.0
+
         return {
             'Anemia': {
-                'risk': None,
-                'status': 'Model coming soon',
-                'available': False,
+                'risk': round(prob, 1),
+                'status': _risk_label(prob),
+                'available': True,
+                'prediction': 1 if prob >= 50 else 0,  # binary label for display
             }
         }
-    return {'Anemia': {'risk': None, 'status': 'Model coming soon', 'available': False}}
+    except Exception as e:
+        logger.error(f"Anemia prediction error: {e}")
+        return {'Anemia': {'risk': 0, 'status': 'Prediction failed', 'available': False}}
 
 
 def _risk_label(prob: float) -> str:
@@ -281,7 +415,11 @@ def run_predictions(params: dict, report_type: str, patient=None) -> dict:
     has_diabetes_features = any(k in params for k in ['HbA1c', 'Blood Glucose'])
     has_kidney_features = any(k in params for k in ['Serum Creatinine', 'Blood Urea', 'Specific Gravity'])
     has_lft_features = any(k in params for k in ['ALT', 'AST', 'ALP', 'Total Bilirubin'])
-    has_cbc_features = any(k in params for k in ['Hemoglobin', 'WBC', 'Platelets', 'PCV'])
+    # Anemia model needs Hemoglobin + at least one of MCH / MCHC / MCV
+    has_cbc_features = (
+        any(k in params for k in ['Hemoglobin', 'Haemoglobin', 'Hb', 'HGB'])
+        and any(k in params for k in ['MCH', 'MCHC', 'MCV'])
+    )
     
     report_upper = report_type.upper()
     

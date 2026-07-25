@@ -48,8 +48,10 @@ MODEL_CONFIGS = {
     },
     'ALZHEIMER': {
         'file': 'alzheimer.keras',
-        'classes': ['Mild Impairment', 'Moderate Impairment', 'No Impairment', 'Very Mild Impairment'],
-        'input_size': (176, 176),
+        'config_file': 'config.json',
+        'weights_file': 'model.weights.h5',
+        'classes': ['Mild Impairment', 'Moderate Impairment', 'No Impairment'],
+        'input_size': (224, 224),
         'description': "Alzheimer's Disease Staging",
     },
 }
@@ -67,18 +69,29 @@ def _load_keras_model(model_key: str):
         return None
 
     model_path = MODELS_DIR / config['file']
-    if not model_path.exists():
-        logger.warning(f"DL model not found: {model_path} — using stub prediction.")
+    json_path = MODELS_DIR / config.get('config_file', 'config.json')
+    h5_path = MODELS_DIR / config.get('weights_file', 'model.weights.h5')
+
+    if not model_path.exists() and not (json_path.exists() and h5_path.exists()):
+        logger.warning(f"DL model not found for {model_key} — using stub prediction.")
         return None
 
     try:
         import tensorflow as tf
-        model = tf.keras.models.load_model(str(model_path))
+        if model_path.exists():
+            model = tf.keras.models.load_model(str(model_path))
+            logger.info(f"Loaded DL model: {config['file']}")
+        else:
+            with open(json_path, 'r') as f:
+                config_json = f.read()
+            model = tf.keras.models.model_from_json(config_json)
+            model.load_weights(str(h5_path))
+            logger.info(f"Loaded DL model from json & weights: {json_path.name}, {h5_path.name}")
+            
         _model_cache[model_key] = model
-        logger.info(f"Loaded DL model: {config['file']}")
         return model
     except Exception as e:
-        logger.error(f"Failed to load DL model {config['file']}: {e}")
+        logger.error(f"Failed to load DL model for {model_key}: {e}")
         return None
 
 

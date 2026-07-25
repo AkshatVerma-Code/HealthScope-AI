@@ -221,15 +221,74 @@ def _parse_lipid_params(text: str) -> dict:
 
 def _parse_cbc_params(text: str) -> dict:
     params = {}
-    params['Hemoglobin'] = _extract_number(text, [r'h[ae]moglobin[^\d\n]*(\d+\.?\d*)', r'hb[^\d\n]*(\d+\.?\d*)'])
-    params['WBC'] = _extract_number(text, [r'wbc[^\d\n]*([\d,]+\.?\d*)', r'total\s+wbc[^\d\n]*([\d,]+\.?\d*)'])
-    params['RBC Count'] = _extract_number(text, [r'rbc[^\d\n]*([\d,]+\.?\d*)'])
-    params['Platelets'] = _extract_number(text, [r'platelet[^\d\n]*([\d,]+\.?\d*)', r'plt[^\d\n]*([\d,]+\.?\d*)'])
-    params['PCV'] = _extract_number(text, [r'pcv[^\d\n]*(\d+\.?\d*)', r'haematocrit[^\d\n]*(\d+\.?\d*)'])
-    params['MCV'] = _extract_number(text, [r'mcv[^\d\n]*(\d+\.?\d*)'])
-    params['MCH'] = _extract_number(text, [r'mch[^\d\n]*(\d+\.?\d*)'])
-    params['Neutrophils'] = _extract_number(text, [r'neutrophil[^\d\n]*(\d+\.?\d*)'])
-    params['Lymphocytes'] = _extract_number(text, [r'lymphocyte[^\d\n]*(\d+\.?\d*)'])
+
+    # ── Normalize: merge "Calculated" subscript lines onto the previous line ──
+    # In many lab reports MCH/MCHC have "Calculated" printed below the label.
+    # Mistral OCR may emit this as a separate line, separating the label from
+    # its value.  Joining it back removes the ambiguity before we apply regex.
+    normalized = re.sub(r'\n(\s*calculated\b[^\n]*)', r' \1', text, flags=re.IGNORECASE)
+    # ──────────────────────────────────────────────────────────────────────────
+
+    params['Hemoglobin'] = _extract_number(normalized, [
+        r'h[ae]moglobin[^\d\n]*(\d+\.?\d*)',
+        r'\bhb\b[^\d\n]*(\d+\.?\d*)',
+    ])
+    params['WBC'] = _extract_number(normalized, [
+        r'wbc[^\d\n]*([\d,]+\.?\d*)',
+        r'total\s+wbc[^\d\n]*([\d,]+\.?\d*)',
+    ])
+    params['RBC Count'] = _extract_number(normalized, [r'rbc[^\d\n]*([\d,]+\.?\d*)'])
+    params['Platelets'] = _extract_number(normalized, [
+        r'platelet[^\d\n]*([\d,]+\.?\d*)',
+        r'\bplt\b[^\d\n]*([\d,]+\.?\d*)',
+    ])
+    params['PCV'] = _extract_number(normalized, [
+        r'pcv[^\d\n]*(\d+\.?\d*)',
+        r'haematocrit[^\d\n]*(\d+\.?\d*)',
+        r'packed\s+cell\s+volume[^\d\n]*(\d+\.?\d*)',
+    ])
+    params['MCV'] = _extract_number(normalized, [
+        r'mcv[^\d\n]*(\d+\.?\d*)',
+        r'mean\s+corp(?:uscular)?\s+vol(?:ume)?[^\d\n]*(\d+\.?\d*)',
+    ])
+
+    # ── MCH / MCHC ────────────────────────────────────────────────────────────
+    # Strategy:
+    #  1. Extract MCHC first (same line + cross-newline fallback).
+    #  2. Strip all MCHC-containing lines from the text.
+    #  3. Search the cleaned text for MCH (same line + cross-newline fallback).
+    # This eliminates any regex collision between MCH and MCHC.
+
+    params['MCHC'] = _extract_number(normalized, [
+        # same line
+        r'mchc[^\d\n]*(\d+\.?\d*)',
+        r'mean\s+corp(?:uscular)?\s+h[ae]m(?:oglobin)?\s+conc(?:entration)?[^\d\n]*(\d+\.?\d*)',
+        r'm\.?c\.?h\.?c[^\d\n]*(\d+\.?\d*)',
+        # value on the very next line (rare layout)
+        r'mchc[^\n]*\n\s*(\d+\.?\d*)',
+    ])
+
+    # Remove every line that mentions MCHC (or full name) so MCH won't see them
+    no_mchc = re.sub(r'[^\n]*mchc[^\n]*',          '', normalized, flags=re.IGNORECASE)
+    no_mchc = re.sub(r'[^\n]*m\.c\.h\.c[^\n]*',    '', no_mchc,    flags=re.IGNORECASE)
+    no_mchc = re.sub(
+        r'[^\n]*mean\s+corp\w*\s+h[ae]m\w*\s+conc\w*[^\n]*', '',
+        no_mchc, flags=re.IGNORECASE,
+    )
+
+    params['MCH'] = _extract_number(no_mchc, [
+        # same line (most table-based OCR layouts)
+        r'\bmch\b[^\d\n]*(\d+\.?\d*)',
+        r'mean\s+corp(?:uscular)?\s+h[ae]m(?:oglobin)?(?!\s*conc)[^\d\n]*(\d+\.?\d*)',
+        r'm\.?c\.?h[^\d\n]*(\d+\.?\d*)',
+        # value on the very next line (some structured-text OCR layouts)
+        r'\bmch\b[^\n]*\n\s*(\d+\.?\d*)',
+        r'mean\s+corp(?:uscular)?\s+h[ae]m(?:oglobin)?(?!\s*conc)[^\n]*\n\s*(\d+\.?\d*)',
+    ])
+    # ──────────────────────────────────────────────────────────────────────────
+
+    params['Neutrophils'] = _extract_number(normalized, [r'neutrophil[^\d\n]*(\d+\.?\d*)'])
+    params['Lymphocytes'] = _extract_number(normalized, [r'lymphocyte[^\d\n]*(\d+\.?\d*)'])
     return {k: v for k, v in params.items() if v is not None}
 
 
