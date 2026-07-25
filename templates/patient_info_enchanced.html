@@ -1,0 +1,685 @@
+<!doctype html>
+<!--
+  OD web-prototype: HealthScopeAI User Registration.
+  Multi-step clinical onboarding with silky smooth transitions and exact token bindings.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Patient Assessment Registration · HealthScopeAI Clinical Intelligence</title>
+  <style>
+    :root {
+      --bg:      #f4f8fa;   /* serene soft clinical blue-teal background */
+      --surface: #ffffff;   /* pristine white surfaces */
+      --fg:      #0f172a;   /* slate-900 primary high-contrast text */
+      --muted:   #475569;   /* slate-600 secondary clinical text */
+      --border:  #e2e8f0;   /* slate-200 hairlines & dividers */
+      --accent:  #0d9488;   /* pristine teal-600 medical brand accent */
+
+      --accent-soft: color-mix(in oklch, var(--accent) 10%, transparent);
+      --accent-hover: color-mix(in oklch, var(--accent) 85%, black);
+      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
+      --success:     #059669;
+      --warning:     #d97706;
+      --danger:      #dc2626;
+
+      --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono:    ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+
+      --fs-h1: clamp(26px, 3.5vw, 36px);
+      --fs-h2: clamp(18px, 2.2vw, 24px);
+      --fs-body: 15px;
+      --fs-meta: 13px;
+
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(15, 23, 42, 0.04);
+      --shadow-sm: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+      
+      --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font-family: var(--font-body);
+      font-size: var(--fs-body);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--fg);
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      background: var(--accent);
+      color: white;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.3);
+    }
+
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px 48px;
+    }
+
+    .reg-container {
+      width: 100%;
+      max-width: 620px;
+      background: var(--surface);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Progress bar tracker */
+    .progress-bar-container {
+      background: var(--bg);
+      height: 6px;
+      width: 100%;
+      position: relative;
+    }
+    .progress-bar-fill {
+      background: var(--accent);
+      height: 100%;
+      width: 50%;
+      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .reg-header {
+      padding: 32px 40px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .step-indicator {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .reg-title {
+      font-family: var(--font-display);
+      font-size: var(--fs-h1);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+    }
+
+    .reg-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .reg-body {
+      padding: 28px 40px 36px;
+      position: relative;
+      min-height: 440px;
+    }
+
+    .step-panel {
+      position: absolute;
+      top: 28px;
+      left: 40px;
+      right: 40px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(12px);
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      pointer-events: none;
+    }
+
+    .step-panel.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+      pointer-events: auto;
+      position: relative;
+      top: 0;
+      left: 0;
+      right: 0;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 18px;
+    }
+
+    .form-label {
+      display: block;
+      font-weight: 500;
+      font-size: 13px;
+      margin-bottom: 6px;
+      color: var(--fg);
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 14px;
+      background: var(--surface);
+      color: var(--fg);
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .form-input:focus, .form-select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-soft);
+    }
+
+    .clinical-question {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 16px;
+      transition: var(--transition);
+    }
+
+    .clinical-question:hover {
+      border-color: color-mix(in oklch, var(--accent) 40%, var(--border));
+    }
+
+    .question-title {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: var(--fg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .options-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .option-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      user-select: none;
+    }
+
+    .option-chip input {
+      accent-color: var(--accent);
+      margin: 0;
+      width: 16px;
+      height: 16px;
+    }
+
+    .option-chip:has(input:checked), .option-chip.checked {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent-hover);
+    }
+
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 12px;
+    }
+
+    .checkbox-item:hover {
+      border-color: var(--accent);
+    }
+
+    .checkbox-item input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .checkbox-label-text {
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .btn-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 28px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 11px 22px;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      font-size: 14px;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      box-shadow: 0 4px 12px rgba(13, 148, 136, 0.25);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    .success-screen {
+      text-align: center;
+      padding: 16px 0;
+    }
+
+    .success-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 26px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: var(--fs-meta);
+      color: var(--muted);
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="brand">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      </div>
+      HealthScope AI
+    </div>
+    <div style="font-size: 14px; color: var(--muted);">
+      Clinical Assessment Portal
+    </div>
+  </header>
+
+  <div class="main-wrapper">
+    <div class="reg-container" data-od-id="registration-card">
+      
+      <!-- Progress Bar -->
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBar" style="width: 50%;"></div>
+      </div>
+
+      <div class="reg-header">
+        <div class="step-indicator" id="stepIndicator">Step 1 of 2 · Patient Demographics & Vitals</div>
+        <h1 class="reg-title" id="regTitle">Patient Information</h1>
+        <p class="reg-subtitle" id="regSubtitle">Enter precise physical metrics for AI diagnostic risk scoring.</p>
+      </div>
+
+      <form class="reg-body" id="patient-form" action="{% url 'patient_info' %}" method="post">
+        {% csrf_token %}
+        <!-- STEP 1: Basic Biometrics -->
+        <div class="step-panel active" id="panel-1" data-od-id="step-1-panel">
+          <div class="form-group">
+            <label class="form-label">Full Name</label>
+            <input type="text" name="full_name" class="form-input" id="fullName" placeholder="e.g. Eleanor Vance" value="{{ form.full_name.value|default:'' }}" required />
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Age (Years)</label>
+              <input type="number" name="age" class="form-input" id="age" placeholder="e.g. 48" value="{{ form.age.value|default:'' }}" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Gender</label>
+              <select name="gender" class="form-select" id="gender" required>
+                <option value="" disabled selected>Select gender</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other / Non-binary</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Contact Number (Optional)</label>
+            <input type="text" name="contact" class="form-input" id="contact" placeholder="Phone number" value="{{ form.contact.value|default:'' }}" />
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">Height (cm)</label>
+              <input type="number" name="height" class="form-input" id="height" placeholder="e.g. 172" value="{{ form.height.value|default:'' }}" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Weight (kg)</label>
+              <input type="number" name="weight" class="form-input" id="weight" placeholder="e.g. 68" value="{{ form.weight.value|default:'' }}" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Blood Group</label>
+            <select name="blood_group" class="form-select" id="bloodGroup">
+              <option value="">Select (Optional)</option>
+              <option value="O+">O Positive (O+)</option>
+              <option value="O-">O Negative (O-)</option>
+              <option value="A+">A Positive (A+)</option>
+              <option value="A-">A Negative (A-)</option>
+              <option value="B+">B Positive (B+)</option>
+              <option value="B-">B Negative (B-)</option>
+              <option value="AB+">AB Positive (AB+)</option>
+              <option value="AB-">AB Negative (AB-)</option>
+            </select>
+          </div>
+
+          <div class="btn-row">
+            <div></div> <!-- Spacer -->
+            <button type="button" class="btn btn-primary" onclick="goToStep(2)" data-od-id="next-step-1">Continue to Clinical History →</button>
+          </div>
+        </div>
+
+        <!-- STEP 2: Clinical History & Lifestyle -->
+        <div class="step-panel" id="panel-2" data-od-id="step-2-panel">
+
+          <!-- Blood Pressure -->
+          <div class="clinical-question" id="bp-section">
+            <div class="question-title" style="margin-bottom: 8px;">
+              Blood Pressure (systolic mmHg)
+              <span style="font-size: 12px; font-weight: 400; color: var(--muted);"> — Optional, used for AI risk prediction</span>
+            </div>
+            <input type="number" name="blood_pressure" id="bpInput" class="form-input" placeholder="e.g. 120" min="60" max="250" style="max-width: 200px;" />
+            <div style="font-size: 12px; color: var(--muted); margin-top: 6px;" id="bp-hint">Enter your systolic blood pressure, or check Hypertension below to use a default value of 120.</div>
+          </div>
+
+          <!-- Hypertension Checkbox -->
+          <label class="checkbox-item" data-od-id="hypertension-toggle" onclick="handleHypertensionToggle(event)" style="cursor:pointer;">
+            <input type="checkbox" name="hypertension" id="hypertensionCheck" onclick="event.stopPropagation(); handleHypertensionToggle(event);" />
+            <div>
+              <div class="checkbox-label-text">Hypertension / High Blood Pressure</div>
+              <div style="font-size: 12px; color: var(--muted);">Check this if diagnosed — BP will be set to 120 for AI prediction</div>
+            </div>
+          </label>
+
+          <!-- Heart Disease Checkbox -->
+          <label class="checkbox-item" data-od-id="heart-disease-toggle">
+            <input type="checkbox" name="heart_disease" id="heartDiseaseCheck" />
+            <div>
+              <div class="checkbox-label-text">Heart Disease</div>
+              <div style="font-size: 12px; color: var(--muted);">Coronary artery disease, heart failure, etc.</div>
+            </div>
+          </label>
+
+          <!-- Diabetes Checkbox -->
+          <label class="checkbox-item" data-od-id="diabetes-toggle">
+            <input type="checkbox" name="diabetes" id="diabetesCheck" />
+            <div>
+              <div class="checkbox-label-text">Diabetes (Type 1 or Type 2)</div>
+              <div style="font-size: 12px; color: var(--muted);">Active diagnosis or elevated HbA1c screening history</div>
+            </div>
+          </label>
+
+          <!-- Blood Infection Checkbox -->
+          <label class="checkbox-item" data-od-id="blood-infection-toggle">
+            <input type="checkbox" name="blood_infection" id="bloodInfectionCheck" />
+            <div>
+              <div class="checkbox-label-text">Recent Blood Infection</div>
+              <div style="font-size: 12px; color: var(--muted);">Sepsis or other recent bloodborne infections</div>
+            </div>
+          </label>
+
+          <!-- Smoking Habit -->
+          <div class="clinical-question">
+            <div class="question-title">Do you smoke?</div>
+            <div class="options-row" id="smokingOptions">
+              <label class="option-chip">
+                <input type="radio" name="smoking_history" value="Never" checked /> No
+              </label>
+              <label class="option-chip">
+                <input type="radio" name="smoking_history" value="Current" /> Yes
+              </label>
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn btn-secondary" onclick="goToStep(1)" data-od-id="prev-step-2">Back to Vitals</button>
+            <button type="button" class="btn btn-primary" id="submit-assessment-btn" onclick="submitForm(event)" data-od-id="next-step-2">Submit Assessment</button>
+          </div>
+        </div>
+
+        <!-- STEP 3: Success / Confirmation -->
+        <div class="step-panel" id="panel-3" data-od-id="step-3-panel">
+          <div class="success-screen">
+            <div class="success-icon">✓</div>
+            <h2 style="font-family: var(--font-display); font-size: 24px; margin-bottom: 12px;">Assessment Successfully Recorded</h2>
+            <p style="color: var(--muted); margin-bottom: 24px; max-width: 380px; margin-inline: auto;">
+              Your biometric and clinical history profile has been encrypted and submitted to the HealthScope AI diagnostic engine for real-time risk stratification.
+            </p>
+            <div style="background: var(--bg); padding: 16px; border-radius: var(--radius-sm); font-size: 13px; color: var(--muted); margin-bottom: 24px;">
+              HIPAA compliant &bull; Session ID: #HS-9482-AI
+            </div>
+            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="finishAndRedirect()" data-od-id="launch-workspace">View Diagnostic Report</button>
+          </div>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2026 HealthScope AI Inc. All rights reserved. Secure Medical Intelligence Platform.
+  </footer>
+
+  <script>
+    let currentStep = 1;
+    let redirectUrl = "";
+
+    // ── Hypertension toggle: auto-fill / lock BP field ──────────────────────
+    function handleHypertensionToggle(event) {
+      // Use setTimeout so the checkbox checked state has already flipped
+      setTimeout(() => {
+        const cb  = document.getElementById('hypertensionCheck');
+        const bp  = document.getElementById('bpInput');
+        const hint = document.getElementById('bp-hint');
+        if (cb.checked) {
+          bp.value    = 120;
+          bp.readOnly = true;
+          bp.style.opacity = '0.6';
+          hint.textContent = 'BP set to 120 (default for Hypertension). Uncheck to enter your own value.';
+          hint.style.color = 'var(--accent)';
+        } else {
+          bp.value    = '';
+          bp.readOnly = false;
+          bp.style.opacity = '1';
+          hint.textContent = 'Enter your systolic blood pressure, or check Hypertension above to use a default value of 120.';
+          hint.style.color = 'var(--muted)';
+        }
+      }, 0);
+    }
+
+    // ── Step navigation ──────────────────────────────────────────────────────
+    function goToStep(step) {
+      if (step === 2) {
+        // Manual validation for step-1 required fields (without submitting)
+        const requiredFields = ['fullName', 'age', 'gender'];
+        let valid = true;
+        for (const id of requiredFields) {
+          const el = document.getElementById(id);
+          if (!el.value.trim()) {
+            el.focus();
+            el.reportValidity();
+            valid = false;
+            break;
+          }
+        }
+        if (!valid) return;
+      }
+
+      currentStep = step;
+      
+      // Update panels
+      document.querySelectorAll('.step-panel').forEach((panel, idx) => {
+        if (idx + 1 === step) {
+          panel.classList.add('active');
+        } else {
+          panel.classList.remove('active');
+        }
+      });
+
+      // Update progress bar
+      const fill = document.getElementById('progressBar');
+      fill.style.width = (step === 1 ? '33.33%' : step === 2 ? '66.66%' : '100%');
+
+      // Update header text
+      const indicator = document.getElementById('stepIndicator');
+      const title     = document.getElementById('regTitle');
+      const subtitle  = document.getElementById('regSubtitle');
+
+      if (step === 1) {
+        indicator.textContent = 'Step 1 of 2 · Patient Demographics & Vitals';
+        title.textContent     = 'Patient Information';
+        subtitle.textContent  = 'Enter precise physical metrics for AI diagnostic risk scoring.';
+      } else if (step === 2) {
+        indicator.textContent = 'Step 2 of 2 · Clinical History & Lifestyle';
+        title.textContent     = 'Medical Risk Factors';
+        subtitle.textContent  = 'Indicate known conditions, habits, and physical activity levels.';
+      } else if (step === 3) {
+        indicator.textContent = 'Complete · AI Processing';
+        title.textContent     = 'Assessment Ready';
+        subtitle.textContent  = 'Your encrypted clinical profile is compiled.';
+      }
+    }
+
+    function submitForm(event) {
+        event.preventDefault();
+        const form = document.getElementById('patient-form');
+        if (!form.reportValidity()) {
+            return;
+        }
+
+        const formData = new FormData(form);
+        const submitBtn = document.getElementById('submit-assessment-btn');
+        const originalText = submitBtn.innerText;
+        submitBtn.innerText = 'Processing...';
+        submitBtn.disabled = true;
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                redirectUrl = data.redirect_url;
+                goToStep(3);
+            } else {
+                alert("Validation error: Please check your inputs. " + JSON.stringify(data.errors));
+                submitBtn.innerText = originalText;
+                submitBtn.disabled = false;
+            }
+        })
+        .catch(error => {
+            alert("Error submitting form. Please try again.");
+            submitBtn.innerText = originalText;
+            submitBtn.disabled = false;
+        });
+    }
+
+    function finishAndRedirect() {
+        if (redirectUrl) {
+            window.location.href = redirectUrl;
+        } else {
+            window.location.href = "{% url 'select_analysis' %}"; // Fallback
+        }
+    }
+  </script>
+
+</body>
+</html>
+
