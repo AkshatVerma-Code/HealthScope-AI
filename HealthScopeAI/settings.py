@@ -115,3 +115,6 @@ MODELS_DIR = BASE_DIR / 'Models'
 
 # Mistral OCR API
 MISTRAL_API_KEY = os.environ.get('MISTRAL_API_KEY', '')
+
+# Trigger auto-reload for .env changes
+

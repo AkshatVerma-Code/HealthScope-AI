@@ -438,6 +438,18 @@
       </div>
       {% endif %}
 
+      <!-- U-Net Segmentation Alert -->
+      {% if medical_image.all_class_scores.overlay_url and medical_image.image_type != 'BRAIN_TUMOR_SEGMENTATION' %}
+      <div class="alert alert-info" id="segmentation-alert" style="margin-top: 20px;">
+        <span>🎯</span>
+        <div>
+          <strong>Brain Tumor Segmentation Completed</strong> — The U-Net model has automatically segmented the
+          tumor region (occupying <strong>{{ medical_image.all_class_scores.tumor_area_percentage|floatformat:2 }}%</strong> of the brain cross-section).
+          Click <strong>Segmented</strong> on the scan viewer below to see the boundary overlay.
+        </div>
+      </div>
+      {% endif %}
+
       <!-- TOP ROW -->
       <div class="top-row" id="top-row">
 
@@ -494,9 +506,17 @@
 
         <!-- Uploaded scan -->
         <div class="card" id="scan-card">
-          <div class="card-header-bar">
-            <span>📷</span>
-            <h2>Uploaded Scan</h2>
+          <div class="card-header-bar" style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span>📷</span>
+              <h2>Uploaded Scan</h2>
+            </div>
+            {% if medical_image.all_class_scores.overlay_url %}
+            <div style="display: flex; gap: 4px; background: var(--bg); padding: 3px; border-radius: 20px; border: 1px solid var(--border);">
+              <button onclick="toggleScanView('original')" id="btn-view-original" class="btn-toggle active" style="padding: 4px 12px; font-size: 11px; font-weight: 600; border-radius: 15px; border: none; cursor: pointer; background: var(--accent); color: #fff; transition: all 0.2s;">Original</button>
+              <button onclick="toggleScanView('overlay')" id="btn-view-overlay" class="btn-toggle" style="padding: 4px 12px; font-size: 11px; font-weight: 600; border-radius: 15px; border: none; cursor: pointer; background: transparent; color: var(--muted); transition: all 0.2s;">Segmented</button>
+            </div>
+            {% endif %}
           </div>
           <div class="card-body-pad">
             <div class="scan-img-wrapper" id="scan-img-wrapper">
@@ -525,7 +545,19 @@
         </div>
         <div class="card-body-pad">
           <div class="summary-text" id="summary-text">
-            {% if 'No Tumor' in medical_image.prediction or 'Normal' in medical_image.prediction or 'No Impairment' in medical_image.prediction %}
+            {% if medical_image.image_type == 'BRAIN_TUMOR_SEGMENTATION' %}
+              <p>
+                The AI U-Net segmentation analysis of <strong>{{ patient.full_name }}'s</strong>
+                Brain MRI scan has successfully run.
+                The predicted tumor area represents <strong>{{ medical_image.confidence|floatformat:2 }}%</strong>
+                of the brain cross-sectional area.
+              </p>
+              <p>
+                An overlay has been generated. You can toggle the <strong>Segmented</strong> view on the scan card
+                above to inspect the boundaries (highlighted in translucent red). An urgent consultation with a
+                Neurologist / Neuro-oncologist is strongly advised to confirm these boundaries.
+              </p>
+            {% elif 'No Tumor' in medical_image.prediction or 'Normal' in medical_image.prediction or 'No Impairment' in medical_image.prediction %}
               <p>
                 The AI analysis of <strong>{{ patient.full_name }}'s</strong>
                 {{ medical_image.get_image_type_display }}
@@ -678,6 +710,32 @@
         });
       }, 300);
     });
+
+    // Toggle scan view (Original vs. Segmented Overlay)
+    function toggleScanView(view) {
+      const imgElement = document.getElementById('scan-img');
+      const originalUrl = "{{ medical_image.uploaded_file.url }}";
+      const overlayUrl = "{{ medical_image.all_class_scores.overlay_url }}";
+      
+      const btnOriginal = document.getElementById('btn-view-original');
+      const btnOverlay = document.getElementById('btn-view-overlay');
+      
+      if (!imgElement || !originalUrl || !overlayUrl) return;
+      
+      if (view === 'overlay') {
+        imgElement.src = overlayUrl;
+        btnOverlay.style.background = 'var(--accent)';
+        btnOverlay.style.color = '#fff';
+        btnOriginal.style.background = 'transparent';
+        btnOriginal.style.color = 'var(--muted)';
+      } else {
+        imgElement.src = originalUrl;
+        btnOriginal.style.background = 'var(--accent)';
+        btnOriginal.style.color = '#fff';
+        btnOverlay.style.background = 'transparent';
+        btnOverlay.style.color = 'var(--muted)';
+      }
+    }
   </script>
 </body>
 </html>

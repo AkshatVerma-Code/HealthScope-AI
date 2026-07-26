@@ -16,6 +16,7 @@ def image_upload(request):
         ('BRAIN_MRI', 'Brain MRI — Tumor / Glioma / Meningioma'),
         ('CHEST_XRAY', 'Chest X-ray — Pneumonia / Tuberculosis'),
         ('ALZHEIMER', 'Alzheimer MRI — Disease Staging'),
+        ('BRAIN_TUMOR_SEGMENTATION', 'Brain MRI — Tumor Segmentation'),
     ]
 
     if request.method == 'POST':
@@ -43,6 +44,15 @@ def image_upload(request):
             medical_image.confidence = result.get('confidence', 0.0)
             medical_image.all_class_scores = result.get('all_class_scores', {})
             medical_image.model_available = result.get('model_available', False)
+            
+            # Automatically run U-Net segmentation if a brain tumor is classified
+            if image_type == 'BRAIN_MRI' and medical_image.prediction in ['Glioma', 'Meningioma', 'Pituitary']:
+                seg_result = predict_image(medical_image.uploaded_file.path, 'BRAIN_TUMOR_SEGMENTATION')
+                if seg_result.get('model_available'):
+                    # Save overlay URL and tumor area percentage inside all_class_scores
+                    medical_image.all_class_scores['overlay_url'] = seg_result['all_class_scores']['overlay_url']
+                    medical_image.all_class_scores['tumor_area_percentage'] = seg_result['all_class_scores']['tumor_area_percentage']
+            
             medical_image.save()
         except Exception as e:
             medical_image.prediction = 'Prediction failed'
@@ -66,10 +76,11 @@ def image_result(request, image_id):
     if str(medical_image.session.session_id) != str(session_id):
         return redirect('patient_info')
 
-    # Prepare class score list for chart rendering
+    # Prepare class score list for chart rendering (filtering out U-Net metadata keys)
     class_scores = [
         {'label': cls, 'score': score}
         for cls, score in medical_image.all_class_scores.items()
+        if cls not in ['overlay_url', 'tumor_area_percentage']
     ]
 
     return render(request, 'image_result.html', {
