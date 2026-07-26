@@ -5,7 +5,6 @@ from UserRegistration.models import PatientSession
 class MedicalImage(models.Model):
     IMAGE_TYPE_CHOICES = [
         ('BRAIN_MRI', 'Brain MRI'),
-        ('CHEST_XRAY', 'Chest X-ray'),
         ('ALZHEIMER', 'Alzheimer MRI'),
         ('BRAIN_TUMOR_SEGMENTATION', 'Brain Tumor Segmentation'),
     ]

@@ -5,7 +5,7 @@ Models:
   - Diabetes   → Models/Diabetes.pkl            (+ Models/scaler_diabetes.pkl)
   - Kidney     → Models/kidney_disease_model.pkl (+ Models/kidney_scaler.pkl)
   - Anemia     → Models/Anemia.pkl               (+ Models/Anemia_scaler.pkl)
-  - Liver      → Models/liver.pkl  [STUB — add model file when ready]
+  - Liver      → Models/Liver.pkl
 
 Feature Maps (exactly matching the trained model column order):
   Diabetes:
@@ -124,6 +124,25 @@ ANEMIA_DEFAULTS = {
     'MCH':        27.5,   # pg    (normal range 27–33)
     'MCHC':       33.0,   # g/dL  (normal range 32–36)
     'MCV':        85.0,   # fL    (normal range 80–100)
+}
+
+LIVER_FEATURES = [
+    'Age', 'Gender', 'Total_Bilirubin', 'Direct_Bilirubin', 'Alkaline_Phosphotase',
+    'Alamine_Aminotransferase', 'Aspartate_Aminotransferase', 'Total_Proteins',
+    'Albumin', 'Albumin_and_Globulin_Ratio'
+]
+
+LIVER_DEFAULTS = {
+    'Age': 35,
+    'Gender': 1,  # 0=Female, 1=Male
+    'Total_Bilirubin': 0.8,
+    'Direct_Bilirubin': 0.2,
+    'Alkaline_Phosphotase': 120,
+    'Alamine_Aminotransferase': 25,
+    'Aspartate_Aminotransferase': 25,
+    'Total_Proteins': 7.0,
+    'Albumin': 4.0,
+    'Albumin_and_Globulin_Ratio': 1.0,
 }
 
 
@@ -296,17 +315,66 @@ def predict_kidney(params: dict, patient=None) -> dict:
 
 
 def predict_liver(params: dict, patient=None) -> dict:
-    model = _load('liver.pkl')
+    model = _load('Liver.pkl')
     if model is None:
+        return {'Liver Disease': {'risk': 0, 'status': 'Model unavailable', 'available': False}}
+
+    enriched = dict(params)
+    
+    # Encode Gender: accept string ('Male'/'Female') or numeric (1/0)
+    # Priority: explicit param → patient profile → default (Male=1)
+    gender_raw = enriched.get('Gender', None)
+    if gender_raw is None and patient is not None:
+        gender_raw = getattr(patient, 'gender', None)
+    if isinstance(gender_raw, str):
+        enriched['Gender'] = 0 if gender_raw.strip().lower() == 'female' else 1
+    elif gender_raw is None:
+        enriched['Gender'] = LIVER_DEFAULTS['Gender']
+    else:
+        enriched['Gender'] = int(gender_raw)
+
+    if patient:
+        enriched.setdefault('Age', patient.age)
+
+    # Map OCR variants to the exact model columns
+    ocr_aliases = {
+        'Total Bilirubin': 'Total_Bilirubin',
+        'Direct Bilirubin': 'Direct_Bilirubin',
+        'Alkaline Phosphatase': 'Alkaline_Phosphotase',
+        'SGPT': 'Alamine_Aminotransferase',
+        'ALT': 'Alamine_Aminotransferase',
+        'Alanine Aminotransferase': 'Alamine_Aminotransferase',
+        'SGOT': 'Aspartate_Aminotransferase',
+        'AST': 'Aspartate_Aminotransferase',
+        'Total Protein': 'Total_Proteins',
+        'Total Proteins': 'Total_Proteins',
+        'A/G Ratio': 'Albumin_and_Globulin_Ratio',
+    }
+    for alias, canonical in ocr_aliases.items():
+        if alias in enriched and canonical not in enriched:
+            enriched[canonical] = enriched[alias]
+
+    X = _build_feature_vector(enriched, LIVER_FEATURES, LIVER_DEFAULTS)
+
+    try:
+        # Prefer probability output; fall back to hard 0/1 prediction
+        if hasattr(model, 'predict_proba'):
+            prob = model.predict_proba(X)[0][1] * 100
+        else:
+            pred = int(model.predict(X)[0])
+            prob = 100.0 if pred == 1 else 0.0
+
         return {
             'Liver Disease': {
-                'risk': None,
-                'status': 'Model coming soon',
-                'available': False,
+                'risk': round(prob, 1),
+                'status': _risk_label(prob),
+                'available': True,
+                'prediction': 1 if prob >= 50 else 0,
             }
         }
-    # Will be wired once model is available
-    return {'Liver Disease': {'risk': None, 'status': 'Model coming soon', 'available': False}}
+    except Exception as e:
+        logger.error(f"Liver prediction error: {e}")
+        return {'Liver Disease': {'risk': 0, 'status': 'Prediction failed', 'available': False}}
 
 
 def predict_anemia(params: dict, patient=None) -> dict:

@@ -5,9 +5,6 @@ Models (TensorFlow .keras format):
   - Brain MRI  → Models/brain_tumor.keras
     Classes: ['Glioma', 'Meningioma', 'No Tumor', 'Pituitary']
 
-  - Chest X-ray → Models/chest_xray.keras
-    Classes: ['Normal', 'Pneumonia', 'Tuberculosis']
-
   - Alzheimer  → Models/alzheimer.keras
     Classes: ['Mild Impairment', 'Moderate Impairment', 'No Impairment', 'Very Mild Impairment']
 
@@ -42,12 +39,6 @@ MODEL_CONFIGS = {
         'classes': ['Glioma', 'Meningioma', 'No Tumor', 'Pituitary'],
         'input_size': (224, 224),
         'description': 'Brain Tumor Classification',
-    },
-    'CHEST_XRAY': {
-        'file': 'chest_xray.keras',
-        'classes': ['Normal', 'Pneumonia', 'Tuberculosis'],
-        'input_size': (224, 224),
-        'description': 'Lung Disease Classification',
     },
     'ALZHEIMER': {
         'file': 'alzheimer.keras',
@@ -222,7 +213,7 @@ def predict_image(image_path: str, image_type: str) -> dict:
 
     Args:
         image_path: Absolute path to the uploaded image file.
-        image_type: One of 'BRAIN_MRI', 'CHEST_XRAY', 'ALZHEIMER', 'BRAIN_TUMOR_SEGMENTATION'
+        image_type: One of 'BRAIN_MRI', 'ALZHEIMER', 'BRAIN_TUMOR_SEGMENTATION'
 
     Returns:
         dict with prediction results
