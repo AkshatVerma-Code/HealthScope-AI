@@ -480,12 +480,7 @@
               <span class="val val-flag">Yes</span>
             </div>
             {% endif %}
-            {% if patient.diabetes %}
-            <div class="patient-row">
-              <span class="lbl">Diabetes</span>
-              <span class="val val-flag">Yes</span>
-            </div>
-            {% endif %}
+
             {% if patient.blood_group %}
             <div class="patient-row">
               <span class="lbl">Blood Group</span>
@@ -581,8 +576,8 @@
                 An urgent consultation with a specialist
                 {% if 'Brain' in medical_image.get_image_type_display or 'Alzheimer' in medical_image.get_image_type_display %}(Neurologist / Neuro-oncologist){% else %}(Pulmonologist / Radiologist){% endif %}
                 is strongly advised.
-                {% if patient.hypertension or patient.diabetes %}
-                The patient's existing conditions (hypertension / diabetes) should also be
+                {% if patient.hypertension %}
+                The patient's existing condition (hypertension) should also be
                 communicated to the treating physician.
                 {% endif %}
               </p>

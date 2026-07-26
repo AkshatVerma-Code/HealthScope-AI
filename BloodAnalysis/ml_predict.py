@@ -2,16 +2,13 @@
 ML Prediction Engine + Recommendation System
 
 Models:
-  - Diabetes   → Models/Diabetes.pkl            (+ Models/scaler_diabetes.pkl)
+
   - Kidney     → Models/kidney_disease_model.pkl (+ Models/kidney_scaler.pkl)
   - Anemia     → Models/Anemia.pkl               (+ Models/Anemia_scaler.pkl)
   - Liver      → Models/Liver.pkl
 
 Feature Maps (exactly matching the trained model column order):
-  Diabetes:
-    age, hypertension, heart_disease, bmi, hbA1c_level,
-    blood_glucose_level, gender_Female, gender_Male,
-    smoking_history_No, smoking_history_Yes
+
 
   Kidney (kidney_disease_model.pkl — abbreviated names):
     Bp   : Blood Pressure
@@ -76,11 +73,7 @@ def _load(filename: str):
 # Feature builders
 # ─────────────────────────────────────────────
 
-DIABETES_FEATURES = [
-    'age', 'hypertension', 'heart_disease', 'bmi', 'hbA1c_level',
-    'blood_glucose_level', 'gender_Female', 'gender_Male',
-    'smoking_history_No', 'smoking_history_Yes',
-]
+
 
 # kidney_disease_model.pkl — abbreviated feature names
 KIDNEY_FEATURES = [
@@ -93,12 +86,7 @@ KIDNEY_FEATURES = [
 ANEMIA_FEATURES = ['Gender', 'Hemoglobin', 'MCH', 'MCHC', 'MCV']
 
 # Default fill values (medically-normal defaults)
-DIABETES_DEFAULTS = {
-    'age': 35, 'hypertension': 0, 'heart_disease': 0, 'bmi': 22.5,
-    'hbA1c_level': 5.5, 'blood_glucose_level': 100,
-    'gender_Female': 0, 'gender_Male': 1,
-    'smoking_history_No': 1, 'smoking_history_Yes': 0,
-}
+
 
 # Medically-normal defaults for the abbreviated kidney feature set
 KIDNEY_DEFAULTS = {
@@ -156,7 +144,7 @@ def _build_feature_vector(params: dict, features: list, defaults: dict) -> np.nd
 
 
 def _enrich_with_patient(params: dict, patient) -> dict:
-    """Add patient info to params dict for Diabetes model."""
+    """Add patient info to params dict for ML models."""
     enriched = dict(params)
     if patient:
         enriched.setdefault('age', patient.age)
@@ -170,11 +158,9 @@ def _enrich_with_patient(params: dict, patient) -> dict:
             bmi_calc = patient.weight / (h_m * h_m)
             enriched['bmi'] = round(bmi_calc, 1)
 
-        # Smoking History → new model columns: smoking_history_No / smoking_history_Yes
-        smoke = getattr(patient, 'smoking_history', 'Never')
-        is_smoker = smoke == 'Current'
-        enriched['smoking_history_Yes'] = 1 if is_smoker else 0
-        enriched['smoking_history_No'] = 0 if is_smoker else 1
+        # Sugar level (0–5) → map to kidney model's Su feature
+        sugar_level = getattr(patient, 'sugar', 0)
+        enriched.setdefault('Su', sugar_level)
 
         # Inject patient medical history — use direct assignment so patient
         # data always wins over OCR-extracted 0 defaults.
@@ -185,13 +171,7 @@ def _enrich_with_patient(params: dict, patient) -> dict:
             enriched.setdefault('hypertension', 0)
             enriched.setdefault('Htn', 0)
 
-        if getattr(patient, 'heart_disease', False):
-            enriched['heart_disease'] = 1
-        else:
-            enriched.setdefault('heart_disease', 0)
 
-        if getattr(patient, 'diabetes', False):
-            enriched.setdefault('diabetes_history', 1)
 
         if getattr(patient, 'blood_infection', False):
             # blood_infection maps to Rbc flag in kidney_disease_model.pkl
@@ -205,38 +185,6 @@ def _enrich_with_patient(params: dict, patient) -> dict:
 # ─────────────────────────────────────────────
 # Predictors
 # ─────────────────────────────────────────────
-
-def predict_diabetes(params: dict, patient=None) -> dict:
-    model = _load('Diabetes.pkl')
-    scaler = _load('scaler_diabetes.pkl')
-
-    if model is None:
-        return {'Diabetes': {'risk': 0, 'status': 'Model unavailable', 'available': False}}
-
-    enriched = _enrich_with_patient(params, patient)
-    X = _build_feature_vector(enriched, DIABETES_FEATURES, DIABETES_DEFAULTS)
-
-    try:
-        if scaler is not None:
-            # Scaler expects only continuous features: age, bmi, hbA1c_level, blood_glucose_level
-            # Indices in new DIABETES_FEATURES: age=0, bmi=3, hbA1c_level=4, blood_glucose_level=5
-            idx = [0, 3, 4, 5]
-            cont_features = X[0, idx].reshape(1, -1)
-            scaled_cont = scaler.transform(cont_features)[0]
-            for i, p in enumerate(idx):
-                X[0, p] = scaled_cont[i]
-                
-        prob = model.predict_proba(X)[0][1] * 100
-        return {
-            'Diabetes': {
-                'risk': round(prob, 1),
-                'status': _risk_label(prob),
-                'available': True,
-            }
-        }
-    except Exception as e:
-        logger.error(f"Diabetes prediction error: {e}")
-        return {'Diabetes': {'risk': 0, 'status': 'Prediction failed', 'available': False}}
 
 
 def predict_kidney(params: dict, patient=None) -> dict:
@@ -462,13 +410,9 @@ def _risk_label(prob: float) -> str:
 # ─────────────────────────────────────────────
 
 REPORT_PREDICTORS = {
-    'DIABETES': [predict_diabetes],
-    'HBA1C':   [predict_diabetes],
-    'SUGAR':   [predict_diabetes],
     'KFT':     [predict_kidney],
     'CBC':     [predict_anemia],
     'LFT':     [predict_liver],
-    'LIPID':   [predict_liver],
 }
 
 
@@ -480,7 +424,7 @@ def run_predictions(params: dict, report_type: str, patient=None) -> dict:
     results = {}
     
     # Auto-detect applicable models based on extracted parameters
-    has_diabetes_features = any(k in params for k in ['HbA1c', 'Blood Glucose'])
+
     has_kidney_features = any(k in params for k in ['Serum Creatinine', 'Blood Urea', 'Specific Gravity'])
     has_lft_features = any(k in params for k in ['ALT', 'AST', 'ALP', 'Total Bilirubin'])
     # Anemia model needs Hemoglobin + at least one of MCH / MCHC / MCV
@@ -491,13 +435,11 @@ def run_predictions(params: dict, report_type: str, patient=None) -> dict:
     
     report_upper = report_type.upper()
     
-    if has_diabetes_features or report_upper in ['DIABETES', 'HBA1C', 'SUGAR']:
-        results.update(predict_diabetes(params, patient))
-        
+
     if has_kidney_features or report_upper == 'KFT':
         results.update(predict_kidney(params, patient))
         
-    if has_lft_features or report_upper in ['LFT', 'LIPID']:
+    if has_lft_features or report_upper == 'LFT':
         results.update(predict_liver(params, patient))
         
     if has_cbc_features or report_upper == 'CBC':
@@ -511,28 +453,7 @@ def run_predictions(params: dict, report_type: str, patient=None) -> dict:
 # ─────────────────────────────────────────────
 
 RECOMMENDATIONS = {
-    'Diabetes': {
-        'High Risk': [
-            'Consult an endocrinologist immediately.',
-            'Follow a strict low-glycemic index diet — avoid white rice, sugar, and refined flour.',
-            'Engage in 30–45 minutes of moderate exercise daily (walking, cycling).',
-            'Monitor blood glucose levels every morning.',
-            'Avoid sugary drinks and processed snacks.',
-            'Consider regular HbA1c monitoring every 3 months.',
-        ],
-        'Moderate Risk': [
-            'Reduce sugar and carbohydrate intake in daily meals.',
-            'Walk at least 30 minutes per day.',
-            'Get fasting blood glucose tested regularly.',
-            'Maintain a healthy body weight (BMI < 25).',
-            'Limit alcohol and tobacco consumption.',
-        ],
-        'Low Risk': [
-            'Maintain a balanced diet rich in vegetables and whole grains.',
-            'Stay physically active with regular exercise.',
-            'Get annual blood sugar check-ups.',
-        ],
-    },
+
     'Kidney Disease': {
         'High Risk': [
             'Consult a nephrologist immediately.',

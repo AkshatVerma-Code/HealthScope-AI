@@ -92,41 +92,7 @@ def _extract_flag(text: str, patterns: list) -> int:
 # Per-report type parameter parsers
 # ─────────────────────────────────────────────
 
-def _parse_diabetes_params(text: str) -> dict:
-    params = {}
 
-    params['HbA1c'] = _extract_number(text, [
-        r'hba1c[^\d\n]*(\d+\.?\d*)',
-        r'glycated\s+haemoglobin[^\d\n]*(\d+\.?\d*)',
-        r'glycosylated[^\d\n]*(\d+\.?\d*)',
-    ])
-    params['Blood Glucose'] = _extract_number(text, [
-        r'blood\s+glucose[^\d\n]*(\d+\.?\d*)',
-        r'glucose[^\d\n]*(\d+\.?\d*)',
-        r'fasting\s+glucose[^\d\n]*(\d+\.?\d*)',
-        r'ppbs[^\d\n]*(\d+\.?\d*)',
-        r'rbs[^\d\n]*(\d+\.?\d*)',
-    ])
-    params['BMI'] = _extract_number(text, [r'bmi[^\d\n]*(\d+\.?\d*)'])
-    params['Age'] = _extract_number(text, [r'age[^\d\n]*(\d+)'])
-
-    params['Hypertension'] = _extract_flag(text, [
-        r'hypertension', r'high\s+blood\s+pressure', r'htn'
-    ])
-    params['Heart Disease'] = _extract_flag(text, [
-        r'heart\s+disease', r'coronary', r'cardiac'
-    ])
-
-    # Smoking history flags
-    smoking_text = text.lower()
-    params['smoking_history_never'] = 1 if re.search(r'non[- ]smoker|never\s+smok', smoking_text) else 0
-    params['smoking_history_current'] = 1 if re.search(r'current\s+smok|active\s+smok', smoking_text) else 0
-    params['smoking_history_former'] = 1 if re.search(r'former\s+smok|ex[- ]smok', smoking_text) else 0
-    params['smoking_history_not current'] = 1 if (
-        params['smoking_history_former'] and not params['smoking_history_current']
-    ) else 0
-
-    return {k: v for k, v in params.items() if v is not None}
 
 
 def _parse_kidney_params(text: str) -> dict:
@@ -209,14 +175,6 @@ def _parse_lft_params(text: str) -> dict:
     return {k: v for k, v in params.items() if v is not None}
 
 
-def _parse_lipid_params(text: str) -> dict:
-    params = {}
-    params['Total Cholesterol'] = _extract_number(text, [r'total\s+cholesterol[^\d\n]*(\d+\.?\d*)'])
-    params['HDL'] = _extract_number(text, [r'hdl[^\d\n]*(\d+\.?\d*)', r'good\s+cholesterol[^\d\n]*(\d+\.?\d*)'])
-    params['LDL'] = _extract_number(text, [r'ldl[^\d\n]*(\d+\.?\d*)', r'bad\s+cholesterol[^\d\n]*(\d+\.?\d*)'])
-    params['Triglycerides'] = _extract_number(text, [r'triglycerides[^\d\n]*(\d+\.?\d*)', r'tg[^\d\n]*(\d+\.?\d*)'])
-    params['VLDL'] = _extract_number(text, [r'vldl[^\d\n]*(\d+\.?\d*)'])
-    return {k: v for k, v in params.items() if v is not None}
 
 
 def _parse_cbc_params(text: str) -> dict:
@@ -297,13 +255,9 @@ def _parse_cbc_params(text: str) -> dict:
 # ─────────────────────────────────────────────
 
 REPORT_PARSERS = {
-    'DIABETES': _parse_diabetes_params,
-    'HBA1C': _parse_diabetes_params,
     'KFT': _parse_kidney_params,
     'LFT': _parse_lft_params,
-    'LIPID': _parse_lipid_params,
     'CBC': _parse_cbc_params,
-    'SUGAR': _parse_diabetes_params,
 }
 
 

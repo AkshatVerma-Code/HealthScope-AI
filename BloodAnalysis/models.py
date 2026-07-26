@@ -7,10 +7,8 @@ class BloodReport(models.Model):
         ('CBC', 'Complete Blood Count'),
         ('LFT', 'Liver Function Test'),
         ('KFT', 'Kidney Function Test'),
-        ('LIPID', 'Lipid Profile'),
         ('SUGAR', 'Blood Sugar Report'),
         ('HBA1C', 'HbA1c Report'),
-        ('DIABETES', 'Diabetes Panel'),
         ('COMBINED', 'Combined Reports'),
     ]
 

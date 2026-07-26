@@ -96,10 +96,6 @@ document.addEventListener('DOMContentLoaded', function () {
       'CBC':     '💉 CBC — Hemoglobin, WBC, RBC, Platelets, PCV',
       'LFT':     '🫀 LFT — ALT, AST, ALP, Bilirubin, Albumin',
       'KFT':     '🫘 KFT — Creatinine, Urea, Sodium, Potassium',
-      'LIPID':   '🧈 Lipid — Cholesterol, HDL, LDL, Triglycerides',
-      'SUGAR':   '🍬 Sugar — Blood Glucose, HbA1c',
-      'HBA1C':   '🩸 HbA1c — Glycated Haemoglobin level',
-      'DIABETES':'🏥 Diabetes Panel — Full metabolic assessment',
     };
     hintEl.textContent = hints[type] || '';
   }

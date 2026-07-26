@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 {% load static %}
 <!--
   HealthScopeAI · Blood Report Results
@@ -522,17 +522,12 @@
               <div class="pi-label">Report Type</div>
               <div class="pi-value">{{ report.get_report_type_display }}</div>
             </div>
-            {% if patient.hypertension or patient.heart_disease or patient.diabetes %}
+            {% if patient.hypertension %}
             <div class="pi-sep"></div>
             <div class="pi-item">
               <div class="pi-label">Known Conditions</div>
               <div class="pi-value">
-                {% if patient.hypertension %}Hypertension{% endif %}
-                {% if patient.hypertension and patient.heart_disease %} &bull; {% endif %}
-                {% if patient.heart_disease %}Heart Disease{% endif %}
-                {% if patient.diabetes and patient.hypertension %} &bull; {% endif %}
-                {% if patient.diabetes and patient.heart_disease %} &bull; {% endif %}
-                {% if patient.diabetes %}Diabetes{% endif %}
+                Hypertension
               </div>
             </div>
             {% endif %}

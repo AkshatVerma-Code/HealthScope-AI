@@ -5,7 +5,11 @@ from .models import PatientSession
 class PatientForm(forms.ModelForm):
     class Meta:
         model = PatientSession
-        fields = ['full_name', 'age', 'gender', 'contact', 'height', 'weight', 'blood_group', 'smoking_history', 'hypertension', 'heart_disease', 'diabetes', 'blood_infection']
+        fields = [
+            'full_name', 'age', 'gender', 'contact',
+            'height', 'weight', 'blood_group',
+            'hypertension', 'blood_infection', 'sugar',
+        ]
         widgets = {
             'full_name': forms.TextInput(attrs={
                 'class': 'form-input',
@@ -28,10 +32,18 @@ class PatientForm(forms.ModelForm):
                 'placeholder': 'Phone number (optional)',
                 'id': 'id_contact',
             }),
-            'hypertension': forms.CheckboxInput(attrs={'class': 'form-checkbox', 'id': 'id_hypertension'}),
-            'heart_disease': forms.CheckboxInput(attrs={'class': 'form-checkbox', 'id': 'id_heart_disease'}),
-            'diabetes': forms.CheckboxInput(attrs={'class': 'form-checkbox', 'id': 'id_diabetes'}),
-            'blood_infection': forms.CheckboxInput(attrs={'class': 'form-checkbox', 'id': 'id_blood_infection'}),
+            'hypertension': forms.CheckboxInput(attrs={
+                'class': 'form-checkbox',
+                'id': 'id_hypertension',
+            }),
+            'blood_infection': forms.CheckboxInput(attrs={
+                'class': 'form-checkbox',
+                'id': 'id_blood_infection',
+            }),
+            'sugar': forms.Select(attrs={
+                'class': 'form-select',
+                'id': 'id_sugar',
+            }),
             'height': forms.NumberInput(attrs={
                 'class': 'form-input',
                 'placeholder': 'Height in cm (optional)',
@@ -50,10 +62,6 @@ class PatientForm(forms.ModelForm):
                 'class': 'form-select',
                 'id': 'id_blood_group',
             }),
-            'smoking_history': forms.Select(attrs={
-                'class': 'form-select',
-                'id': 'id_smoking_history',
-            }),
         }
         labels = {
             'full_name': 'Full Name',
@@ -61,11 +69,9 @@ class PatientForm(forms.ModelForm):
             'gender': 'Gender',
             'contact': 'Contact Number',
             'hypertension': 'High Blood Pressure (Hypertension)',
-            'heart_disease': 'Heart Disease',
-            'diabetes': 'History of Diabetes',
             'blood_infection': 'Recent Blood Infection',
+            'sugar': 'Sugar Level',
             'height': 'Height (cm)',
             'weight': 'Weight (kg)',
             'blood_group': 'Blood Group',
-            'smoking_history': 'Smoking History',
         }

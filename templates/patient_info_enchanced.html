@@ -4,29 +4,36 @@
   Multi-step clinical onboarding with silky smooth transitions and exact token bindings.
 -->
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Patient Assessment Registration · HealthScopeAI Clinical Intelligence</title>
   <style>
     :root {
-      --bg:      #f4f8fa;   /* serene soft clinical blue-teal background */
-      --surface: #ffffff;   /* pristine white surfaces */
-      --fg:      #0f172a;   /* slate-900 primary high-contrast text */
-      --muted:   #475569;   /* slate-600 secondary clinical text */
-      --border:  #e2e8f0;   /* slate-200 hairlines & dividers */
-      --accent:  #0d9488;   /* pristine teal-600 medical brand accent */
+      --bg: #f4f8fa;
+      /* serene soft clinical blue-teal background */
+      --surface: #ffffff;
+      /* pristine white surfaces */
+      --fg: #0f172a;
+      /* slate-900 primary high-contrast text */
+      --muted: #475569;
+      /* slate-600 secondary clinical text */
+      --border: #e2e8f0;
+      /* slate-200 hairlines & dividers */
+      --accent: #0d9488;
+      /* pristine teal-600 medical brand accent */
 
       --accent-soft: color-mix(in oklch, var(--accent) 10%, transparent);
       --accent-hover: color-mix(in oklch, var(--accent) 85%, black);
-      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
-      --success:     #059669;
-      --warning:     #d97706;
-      --danger:      #dc2626;
+      --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
 
       --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
-      --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      --font-mono:    ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
 
       --fs-h1: clamp(26px, 3.5vw, 36px);
       --fs-h2: clamp(18px, 2.2vw, 24px);
@@ -37,12 +44,20 @@
       --radius-sm: 8px;
       --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(15, 23, 42, 0.04);
       --shadow-sm: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
-      
+
       --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       margin: 0;
       background: var(--bg);
@@ -114,6 +129,7 @@
       width: 100%;
       position: relative;
     }
+
     .progress-bar-fill {
       background: var(--accent);
       height: 100%;
@@ -196,7 +212,8 @@
       color: var(--fg);
     }
 
-    .form-input, .form-select {
+    .form-input,
+    .form-select {
       width: 100%;
       padding: 10px 14px;
       border: 1px solid var(--border);
@@ -209,7 +226,8 @@
       outline: none;
     }
 
-    .form-input:focus, .form-select:focus {
+    .form-input:focus,
+    .form-select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
@@ -265,7 +283,8 @@
       height: 16px;
     }
 
-    .option-chip:has(input:checked), .option-chip.checked {
+    .option-chip:has(input:checked),
+    .option-chip.checked {
       background: var(--accent-soft);
       border-color: var(--accent);
       color: var(--accent-hover);
@@ -371,12 +390,15 @@
     }
   </style>
 </head>
+
 <body>
 
   <header>
     <div class="brand">
       <div class="brand-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+        </svg>
       </div>
       HealthScope AI
     </div>
@@ -387,7 +409,7 @@
 
   <div class="main-wrapper">
     <div class="reg-container" data-od-id="registration-card">
-      
+
       <!-- Progress Bar -->
       <div class="progress-bar-container">
         <div class="progress-bar-fill" id="progressBar" style="width: 50%;"></div>
@@ -405,13 +427,15 @@
         <div class="step-panel active" id="panel-1" data-od-id="step-1-panel">
           <div class="form-group">
             <label class="form-label">Full Name</label>
-            <input type="text" name="full_name" class="form-input" id="fullName" placeholder="e.g. Eleanor Vance" value="{{ form.full_name.value|default:'' }}" required />
+            <input type="text" name="full_name" class="form-input" id="fullName" placeholder="e.g. Eleanor Vance"
+              value="{{ form.full_name.value|default:'' }}" required />
           </div>
 
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Age (Years)</label>
-              <input type="number" name="age" class="form-input" id="age" placeholder="e.g. 48" value="{{ form.age.value|default:'' }}" required />
+              <input type="number" name="age" class="form-input" id="age" placeholder="e.g. 48"
+                value="{{ form.age.value|default:'' }}" required />
             </div>
             <div class="form-group">
               <label class="form-label">Gender</label>
@@ -426,17 +450,20 @@
 
           <div class="form-group">
             <label class="form-label">Contact Number (Optional)</label>
-            <input type="text" name="contact" class="form-input" id="contact" placeholder="Phone number" value="{{ form.contact.value|default:'' }}" />
+            <input type="text" name="contact" class="form-input" id="contact" placeholder="Phone number"
+              value="{{ form.contact.value|default:'' }}" />
           </div>
 
           <div class="form-grid-2">
             <div class="form-group">
               <label class="form-label">Height (cm)</label>
-              <input type="number" name="height" class="form-input" id="height" placeholder="e.g. 172" value="{{ form.height.value|default:'' }}" />
+              <input type="number" name="height" class="form-input" id="height" placeholder="e.g. 172"
+                value="{{ form.height.value|default:'' }}" />
             </div>
             <div class="form-group">
               <label class="form-label">Weight (kg)</label>
-              <input type="number" name="weight" class="form-input" id="weight" placeholder="e.g. 68" value="{{ form.weight.value|default:'' }}" />
+              <input type="number" name="weight" class="form-input" id="weight" placeholder="e.g. 68"
+                value="{{ form.weight.value|default:'' }}" />
             </div>
           </div>
 
@@ -457,7 +484,8 @@
 
           <div class="btn-row">
             <div></div> <!-- Spacer -->
-            <button type="button" class="btn btn-primary" onclick="goToStep(2)" data-od-id="next-step-1">Continue to Clinical History →</button>
+            <button type="button" class="btn btn-primary" onclick="goToStep(2)" data-od-id="next-step-1">Continue to
+              Clinical History →</button>
           </div>
         </div>
 
@@ -468,38 +496,28 @@
           <div class="clinical-question" id="bp-section">
             <div class="question-title" style="margin-bottom: 8px;">
               Blood Pressure (systolic mmHg)
-              <span style="font-size: 12px; font-weight: 400; color: var(--muted);"> — Optional, used for AI risk prediction</span>
+              <span style="font-size: 12px; font-weight: 400; color: var(--muted);"> — Optional, used for AI risk
+                prediction</span>
             </div>
-            <input type="number" name="blood_pressure" id="bpInput" class="form-input" placeholder="e.g. 120" min="60" max="250" style="max-width: 200px;" />
-            <div style="font-size: 12px; color: var(--muted); margin-top: 6px;" id="bp-hint">Enter your systolic blood pressure, or check Hypertension below to use a default value of 120.</div>
+            <input type="number" name="blood_pressure" id="bpInput" class="form-input" placeholder="e.g. 120" min="60"
+              max="250" style="max-width: 200px;" />
+            <div style="font-size: 12px; color: var(--muted); margin-top: 6px;" id="bp-hint">Enter your systolic blood
+              pressure, or check Hypertension below to use a default value of 120.</div>
           </div>
 
           <!-- Hypertension Checkbox -->
-          <label class="checkbox-item" data-od-id="hypertension-toggle" onclick="handleHypertensionToggle(event)" style="cursor:pointer;">
-            <input type="checkbox" name="hypertension" id="hypertensionCheck" onclick="event.stopPropagation(); handleHypertensionToggle(event);" />
+          <label class="checkbox-item" data-od-id="hypertension-toggle" onclick="handleHypertensionToggle(event)"
+            style="cursor:pointer;">
+            <input type="checkbox" name="hypertension" id="hypertensionCheck"
+              onclick="event.stopPropagation(); handleHypertensionToggle(event);" />
             <div>
               <div class="checkbox-label-text">Hypertension / High Blood Pressure</div>
-              <div style="font-size: 12px; color: var(--muted);">Check this if diagnosed — BP will be set to 120 for AI prediction</div>
+              <div style="font-size: 12px; color: var(--muted);">Check this if diagnosed — BP will be set to 120 for AI
+                prediction</div>
             </div>
           </label>
 
-          <!-- Heart Disease Checkbox -->
-          <label class="checkbox-item" data-od-id="heart-disease-toggle">
-            <input type="checkbox" name="heart_disease" id="heartDiseaseCheck" />
-            <div>
-              <div class="checkbox-label-text">Heart Disease</div>
-              <div style="font-size: 12px; color: var(--muted);">Coronary artery disease, heart failure, etc.</div>
-            </div>
-          </label>
 
-          <!-- Diabetes Checkbox -->
-          <label class="checkbox-item" data-od-id="diabetes-toggle">
-            <input type="checkbox" name="diabetes" id="diabetesCheck" />
-            <div>
-              <div class="checkbox-label-text">Diabetes (Type 1 or Type 2)</div>
-              <div style="font-size: 12px; color: var(--muted);">Active diagnosis or elevated HbA1c screening history</div>
-            </div>
-          </label>
 
           <!-- Blood Infection Checkbox -->
           <label class="checkbox-item" data-od-id="blood-infection-toggle">
@@ -510,22 +528,45 @@
             </div>
           </label>
 
-          <!-- Smoking Habit -->
+
+          <!-- Sugar Level -->
           <div class="clinical-question">
-            <div class="question-title">Do you smoke?</div>
-            <div class="options-row" id="smokingOptions">
-              <label class="option-chip">
-                <input type="radio" name="smoking_history" value="Never" checked /> No
+            <div class="question-title">Sugar Level
+              <span style="font-size: 12px; font-weight: 400; color: var(--muted);"> &mdash; Select your blood sugar history</span>
+            </div>
+            <div class="options-row" id="sugarOptions" style="flex-direction: column; gap: 8px;">
+              <label class="option-chip" style="align-items: center; gap: 12px; padding: 10px 16px;">
+                <input type="radio" name="sugar" value="0" checked />
+                <span><strong>0</strong> &mdash; No diabetes</span>
               </label>
-              <label class="option-chip">
-                <input type="radio" name="smoking_history" value="Current" /> Yes
+              <label class="option-chip" style="align-items: center; gap: 12px; padding: 10px 16px;">
+                <input type="radio" name="sugar" value="1" />
+                <span><strong>1</strong> &mdash; Controlled diabetes</span>
+              </label>
+              <label class="option-chip" style="align-items: center; gap: 12px; padding: 10px 16px;">
+                <input type="radio" name="sugar" value="2" />
+                <span><strong>2</strong> &mdash; Moderately high sugar</span>
+              </label>
+              <label class="option-chip" style="align-items: center; gap: 12px; padding: 10px 16px;">
+                <input type="radio" name="sugar" value="3" />
+                <span><strong>3</strong> &mdash; High sugar</span>
+              </label>
+              <label class="option-chip" style="align-items: center; gap: 12px; padding: 10px 16px;">
+                <input type="radio" name="sugar" value="4" />
+                <span><strong>4</strong> &mdash; Very high sugar</span>
+              </label>
+              <label class="option-chip" style="align-items: center; gap: 12px; padding: 10px 16px;">
+                <input type="radio" name="sugar" value="5" />
+                <span><strong>5</strong> &mdash; Extremely high / uncontrolled</span>
               </label>
             </div>
           </div>
 
           <div class="btn-row">
-            <button type="button" class="btn btn-secondary" onclick="goToStep(1)" data-od-id="prev-step-2">Back to Vitals</button>
-            <button type="button" class="btn btn-primary" id="submit-assessment-btn" onclick="submitForm(event)" data-od-id="next-step-2">Submit Assessment</button>
+            <button type="button" class="btn btn-secondary" onclick="goToStep(1)" data-od-id="prev-step-2">Back to
+              Vitals</button>
+            <button type="button" class="btn btn-primary" id="submit-assessment-btn" onclick="submitForm(event)"
+              data-od-id="next-step-2">Submit Assessment</button>
           </div>
         </div>
 
@@ -533,14 +574,18 @@
         <div class="step-panel" id="panel-3" data-od-id="step-3-panel">
           <div class="success-screen">
             <div class="success-icon">✓</div>
-            <h2 style="font-family: var(--font-display); font-size: 24px; margin-bottom: 12px;">Assessment Successfully Recorded</h2>
+            <h2 style="font-family: var(--font-display); font-size: 24px; margin-bottom: 12px;">Assessment Successfully
+              Recorded</h2>
             <p style="color: var(--muted); margin-bottom: 24px; max-width: 380px; margin-inline: auto;">
-              Your biometric and clinical history profile has been encrypted and submitted to the HealthScope AI diagnostic engine for real-time risk stratification.
+              Your biometric and clinical history profile has been encrypted and submitted to the HealthScope AI
+              diagnostic engine for real-time risk stratification.
             </p>
-            <div style="background: var(--bg); padding: 16px; border-radius: var(--radius-sm); font-size: 13px; color: var(--muted); margin-bottom: 24px;">
+            <div
+              style="background: var(--bg); padding: 16px; border-radius: var(--radius-sm); font-size: 13px; color: var(--muted); margin-bottom: 24px;">
               HIPAA compliant &bull; Session ID: #HS-9482-AI
             </div>
-            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="finishAndRedirect()" data-od-id="launch-workspace">View Diagnostic Report</button>
+            <button type="button" class="btn btn-primary" style="width: 100%;" onclick="finishAndRedirect()"
+              data-od-id="launch-workspace">View Diagnostic Report</button>
           </div>
         </div>
 
@@ -561,17 +606,17 @@
     function handleHypertensionToggle(event) {
       // Use setTimeout so the checkbox checked state has already flipped
       setTimeout(() => {
-        const cb  = document.getElementById('hypertensionCheck');
-        const bp  = document.getElementById('bpInput');
+        const cb = document.getElementById('hypertensionCheck');
+        const bp = document.getElementById('bpInput');
         const hint = document.getElementById('bp-hint');
         if (cb.checked) {
-          bp.value    = 120;
+          bp.value = 120;
           bp.readOnly = true;
           bp.style.opacity = '0.6';
           hint.textContent = 'BP set to 120 (default for Hypertension). Uncheck to enter your own value.';
           hint.style.color = 'var(--accent)';
         } else {
-          bp.value    = '';
+          bp.value = '';
           bp.readOnly = false;
           bp.style.opacity = '1';
           hint.textContent = 'Enter your systolic blood pressure, or check Hypertension above to use a default value of 120.';
@@ -599,7 +644,7 @@
       }
 
       currentStep = step;
-      
+
       // Update panels
       document.querySelectorAll('.step-panel').forEach((panel, idx) => {
         if (idx + 1 === step) {
@@ -615,71 +660,71 @@
 
       // Update header text
       const indicator = document.getElementById('stepIndicator');
-      const title     = document.getElementById('regTitle');
-      const subtitle  = document.getElementById('regSubtitle');
+      const title = document.getElementById('regTitle');
+      const subtitle = document.getElementById('regSubtitle');
 
       if (step === 1) {
         indicator.textContent = 'Step 1 of 2 · Patient Demographics & Vitals';
-        title.textContent     = 'Patient Information';
-        subtitle.textContent  = 'Enter precise physical metrics for AI diagnostic risk scoring.';
+        title.textContent = 'Patient Information';
+        subtitle.textContent = 'Enter precise physical metrics for AI diagnostic risk scoring.';
       } else if (step === 2) {
         indicator.textContent = 'Step 2 of 2 · Clinical History & Lifestyle';
-        title.textContent     = 'Medical Risk Factors';
-        subtitle.textContent  = 'Indicate known conditions, habits, and physical activity levels.';
+        title.textContent = 'Medical Risk Factors';
+        subtitle.textContent = 'Indicate known conditions, habits, and physical activity levels.';
       } else if (step === 3) {
         indicator.textContent = 'Complete · AI Processing';
-        title.textContent     = 'Assessment Ready';
-        subtitle.textContent  = 'Your encrypted clinical profile is compiled.';
+        title.textContent = 'Assessment Ready';
+        subtitle.textContent = 'Your encrypted clinical profile is compiled.';
       }
     }
 
     function submitForm(event) {
-        event.preventDefault();
-        const form = document.getElementById('patient-form');
-        if (!form.reportValidity()) {
-            return;
+      event.preventDefault();
+      const form = document.getElementById('patient-form');
+      if (!form.reportValidity()) {
+        return;
+      }
+
+      const formData = new FormData(form);
+      const submitBtn = document.getElementById('submit-assessment-btn');
+      const originalText = submitBtn.innerText;
+      submitBtn.innerText = 'Processing...';
+      submitBtn.disabled = true;
+
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
         }
-
-        const formData = new FormData(form);
-        const submitBtn = document.getElementById('submit-assessment-btn');
-        const originalText = submitBtn.innerText;
-        submitBtn.innerText = 'Processing...';
-        submitBtn.disabled = true;
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
+      })
         .then(response => response.json())
         .then(data => {
-            if (data.success) {
-                redirectUrl = data.redirect_url;
-                goToStep(3);
-            } else {
-                alert("Validation error: Please check your inputs. " + JSON.stringify(data.errors));
-                submitBtn.innerText = originalText;
-                submitBtn.disabled = false;
-            }
-        })
-        .catch(error => {
-            alert("Error submitting form. Please try again.");
+          if (data.success) {
+            redirectUrl = data.redirect_url;
+            goToStep(3);
+          } else {
+            alert("Validation error: Please check your inputs. " + JSON.stringify(data.errors));
             submitBtn.innerText = originalText;
             submitBtn.disabled = false;
+          }
+        })
+        .catch(error => {
+          alert("Error submitting form. Please try again.");
+          submitBtn.innerText = originalText;
+          submitBtn.disabled = false;
         });
     }
 
     function finishAndRedirect() {
-        if (redirectUrl) {
-            window.location.href = redirectUrl;
-        } else {
-            window.location.href = "{% url 'select_analysis' %}"; // Fallback
-        }
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        window.location.href = "{% url 'select_analysis' %}"; // Fallback
+      }
     }
   </script>
 
 </body>
-</html>
 
+</html>

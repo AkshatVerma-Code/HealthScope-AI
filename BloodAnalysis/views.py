@@ -20,10 +20,6 @@ def blood_upload(request):
         ('CBC', 'Complete Blood Count (CBC)'),
         ('LFT', 'Liver Function Test (LFT)'),
         ('KFT', 'Kidney Function Test (KFT)'),
-        ('LIPID', 'Lipid Profile'),
-        ('SUGAR', 'Blood Sugar Report'),
-        ('HBA1C', 'HbA1c Report'),
-        ('DIABETES', 'Diabetes Panel'),
     ]
 
     if request.method == 'POST':
@@ -96,10 +92,8 @@ def blood_result(request, report_id):
     print("-"*60)
     print(f"  Patient     : {patient.full_name}, Age {patient.age}, {patient.gender}")
     print(f"  Hypertension: {patient.hypertension}")
-    print(f"  Heart Dis.  : {patient.heart_disease}")
-    print(f"  Diabetes    : {patient.diabetes}")
     print(f"  Blood Infect: {patient.blood_infection}")
-    print(f"  Smoking     : {patient.smoking_history}")
+    print(f"  Sugar Level : {patient.sugar}")
     print("-"*60)
     print("[DEBUG] STORED EXTRACTED PARAMS:")
     if report.extracted_params:
@@ -158,7 +152,7 @@ def manual_entry(request):
     patient = get_object_or_404(PatientSession, session_id=session_id)
 
     if request.method == 'POST':
-        report_type = request.POST.get('report_type', 'DIABETES')
+        report_type = request.POST.get('report_type', 'COMBINED')
 
         # Collect all numeric POST params
         params = {}

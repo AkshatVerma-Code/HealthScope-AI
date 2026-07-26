@@ -1,32 +1,39 @@
-﻿<!doctype html>
+<!doctype html>
 <!--
   OD web-prototype: HealthScopeAI User Registration.
   Multi-step clinical onboarding with silky smooth transitions and exact token bindings.
 -->
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Patient Assessment Registration Â· HealthScopeAI Clinical Intelligence</title>
   <style>
     :root {
-      --bg:      #f4f8fa;   /* serene soft clinical blue-teal background */
-      --surface: #ffffff;   /* pristine white surfaces */
-      --fg:      #0f172a;   /* slate-900 primary high-contrast text */
-      --muted:   #475569;   /* slate-600 secondary clinical text */
-      --border:  #e2e8f0;   /* slate-200 hairlines & dividers */
-      --accent:  #0d9488;   /* pristine teal-600 medical brand accent */
+      --bg: #f4f8fa;
+      /* serene soft clinical blue-teal background */
+      --surface: #ffffff;
+      /* pristine white surfaces */
+      --fg: #0f172a;
+      /* slate-900 primary high-contrast text */
+      --muted: #475569;
+      /* slate-600 secondary clinical text */
+      --border: #e2e8f0;
+      /* slate-200 hairlines & dividers */
+      --accent: #0d9488;
+      /* pristine teal-600 medical brand accent */
 
       --accent-soft: color-mix(in oklch, var(--accent) 10%, transparent);
       --accent-hover: color-mix(in oklch, var(--accent) 85%, black);
-      --fg-soft:     color-mix(in oklch, var(--fg) 6%, transparent);
-      --success:     #059669;
-      --warning:     #d97706;
-      --danger:      #dc2626;
+      --fg-soft: color-mix(in oklch, var(--fg) 6%, transparent);
+      --success: #059669;
+      --warning: #d97706;
+      --danger: #dc2626;
 
       --font-display: 'Iowan Old Style', 'Charter', Georgia, 'Times New Roman', serif;
-      --font-body:    -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      --font-mono:    ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
+      --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+      --font-mono: ui-monospace, 'JetBrains Mono', 'SF Mono', Menlo, monospace;
 
       --fs-h1: clamp(26px, 3.5vw, 36px);
       --fs-h2: clamp(18px, 2.2vw, 24px);
@@ -37,12 +44,20 @@
       --radius-sm: 8px;
       --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(15, 23, 42, 0.04);
       --shadow-sm: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
-      
+
       --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    *, *::before, *::after { box-sizing: border-box; }
-    html { -webkit-text-size-adjust: 100%; }
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
+
     body {
       margin: 0;
       background: var(--bg);
@@ -114,6 +129,7 @@
       width: 100%;
       position: relative;
     }
+
     .progress-bar-fill {
       background: var(--accent);
       height: 100%;
@@ -196,7 +212,8 @@
       color: var(--fg);
     }
 
-    .form-input, .form-select {
+    .form-input,
+    .form-select {
       width: 100%;
       padding: 10px 14px;
       border: 1px solid var(--border);
@@ -209,7 +226,8 @@
       outline: none;
     }
 
-    .form-input:focus, .form-select:focus {
+    .form-input:focus,
+    .form-select:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px var(--accent-soft);
     }
@@ -265,7 +283,8 @@
       height: 16px;
     }
 
-    .option-chip:has(input:checked), .option-chip.checked {
+    .option-chip:has(input:checked),
+    .option-chip.checked {
       background: var(--accent-soft);
       border-color: var(--accent);
       color: var(--accent-hover);
@@ -371,12 +390,15 @@
     }
   </style>
 </head>
+
 <body>
 
   <header>
     <div class="brand">
       <div class="brand-icon">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+        </svg>
       </div>
       HealthScope AI
     </div>
@@ -387,7 +409,7 @@
 
   <div class="main-wrapper">
     <div class="reg-container" data-od-id="registration-card">
-      
+
       <!-- Progress Bar -->
       <div class="progress-bar-container">
         <div class="progress-bar-fill" id="progressBar" style="width: 50%;"></div>
@@ -400,12 +422,13 @@
       </div>
 
       <div class="reg-body">
-        
+
         <!-- STEP 1: Basic Biometrics -->
         <div class="step-panel active" id="panel-1" data-od-id="step-1-panel">
           <div class="form-group">
             <label class="form-label">Full Name</label>
-            <input type="text" class="form-input" id="fullName" placeholder="e.g. Eleanor Vance" value="Eleanor Vance" />
+            <input type="text" class="form-input" id="fullName" placeholder="e.g. Eleanor Vance"
+              value="Eleanor Vance" />
           </div>
 
           <div class="form-grid-2">
@@ -451,30 +474,25 @@
 
           <div class="btn-row">
             <div></div> <!-- Spacer -->
-            <button class="btn btn-primary" onclick="goToStep(2)" data-od-id="next-step-1">Continue to Clinical History</button>
+            <button class="btn btn-primary" onclick="goToStep(2)" data-od-id="next-step-1">Continue to Clinical
+              History</button>
           </div>
         </div>
 
         <!-- STEP 2: Clinical History & Lifestyle -->
         <div class="step-panel" id="panel-2" data-od-id="step-2-panel">
-          
+
           <!-- Hypertension Checkbox -->
           <label class="checkbox-item" data-od-id="hypertension-toggle">
             <input type="checkbox" id="hypertensionCheck" />
             <div>
               <div class="checkbox-label-text">Hypertension / High Blood Pressure</div>
-              <div style="font-size: 12px; color: var(--muted);">Diagnosed or currently managed with anti-hypertensives</div>
+              <div style="font-size: 12px; color: var(--muted);">Diagnosed or currently managed with anti-hypertensives
+              </div>
             </div>
           </label>
 
-          <!-- Diabetes Checkbox -->
-          <label class="checkbox-item" data-od-id="diabetes-toggle">
-            <input type="checkbox" id="diabetesCheck" />
-            <div>
-              <div class="checkbox-label-text">Diabetes (Type 1 or Type 2)</div>
-              <div style="font-size: 12px; color: var(--muted);">Active diagnosis or elevated HbA1c screening history</div>
-            </div>
-          </label>
+
 
           <!-- Smoking Habit -->
           <div class="clinical-question">
@@ -521,14 +539,19 @@
         <div class="step-panel" id="panel-3" data-od-id="step-3-panel">
           <div class="success-screen">
             <div class="success-icon">âœ“</div>
-            <h2 style="font-family: var(--font-display); font-size: 24px; margin-bottom: 12px;">Assessment Successfully Recorded</h2>
+            <h2 style="font-family: var(--font-display); font-size: 24px; margin-bottom: 12px;">Assessment Successfully
+              Recorded</h2>
             <p style="color: var(--muted); margin-bottom: 24px; max-width: 380px; margin-inline: auto;">
-              Your biometric and clinical history profile has been encrypted and submitted to the HealthScope AI diagnostic engine for real-time risk stratification.
+              Your biometric and clinical history profile has been encrypted and submitted to the HealthScope AI
+              diagnostic engine for real-time risk stratification.
             </p>
-            <div style="background: var(--bg); padding: 16px; border-radius: var(--radius-sm); font-size: 13px; color: var(--muted); margin-bottom: 24px;">
+            <div
+              style="background: var(--bg); padding: 16px; border-radius: var(--radius-sm); font-size: 13px; color: var(--muted); margin-bottom: 24px;">
               HIPAA compliant &bull; Session ID: #HS-9482-AI
             </div>
-            <button class="btn btn-primary" style="width: 100%;" onclick="alert('Profile registered and synced with clinical dashboard.')" data-od-id="launch-workspace">View Diagnostic Report</button>
+            <button class="btn btn-primary" style="width: 100%;"
+              onclick="alert('Profile registered and synced with clinical dashboard.')"
+              data-od-id="launch-workspace">View Diagnostic Report</button>
           </div>
         </div>
 
@@ -546,7 +569,7 @@
 
     function goToStep(step) {
       currentStep = step;
-      
+
       // Update panels
       document.querySelectorAll('.step-panel').forEach((panel, idx) => {
         if (idx + 1 === step) {
@@ -582,5 +605,5 @@
   </script>
 
 </body>
-</html>
 
+</html>
