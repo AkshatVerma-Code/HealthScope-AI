@@ -579,10 +579,6 @@
         <!-- Blood Report -->
         <a href="{% url 'blood_upload' %}" class="analysis-card teal anim-3" id="blood-choice-card" aria-label="Choose Blood Report Analysis">
           <div class="card-icon-wrap">🩸</div>
-          <div class="tech-badge teal">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-            OCR + Machine Learning
-          </div>
           <div class="card-title">Blood Report Analysis</div>
           <div class="card-desc">
             Upload a blood test PDF or image. Our OCR pipeline extracts biomarkers and the ML model predicts disease risk scores across multiple conditions.
@@ -601,10 +597,6 @@
         <!-- Medical Image -->
         <a href="{% url 'image_upload' %}" class="analysis-card purple anim-4" id="image-choice-card" aria-label="Choose Medical Image Analysis">
           <div class="card-icon-wrap">🧠</div>
-          <div class="tech-badge purple">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-            Deep Learning · TensorFlow
-          </div>
           <div class="card-title">Medical Image Diagnosis</div>
           <div class="card-desc">
             Upload a Brain MRI. Our deep learning model classifies the scan and returns a diagnosis with a confidence score in seconds.
@@ -619,11 +611,6 @@
           </div>
         </a>
 
-      </div>
-
-      <!-- OR Divider hint -->
-      <div class="or-divider anim-4">
-        You can run both analyses on the same patient session
       </div>
 
     </div>

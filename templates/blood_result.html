@@ -450,10 +450,10 @@
     </a>
     <div class="shell-nav">
       <a href="{% url 'select_analysis' %}" class="btn btn-outline btn-sm">+ New Analysis</a>
-      <a href="{% url 'blood_download_pdf' report_id=report.id %}" class="btn btn-primary btn-sm">
+      <button class="btn btn-primary btn-sm" onclick="window.print()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Download PDF
-      </a>
+      </button>
     </div>
   </div>
 
@@ -481,7 +481,7 @@
         <div class="report-head">
           <div class="report-head-top">
             <div>
-              <div class="org-name">HealthScope AI &mdash; Clinical Intelligence Platform</div>
+              <div class="org-name">HealthScopeAI &mdash; Clinical Intelligence Platform</div>
               <div class="report-title">Health Diagnostic Report</div>
               <div class="report-subtitle">AI-Powered Multi-Disease Risk Assessment</div>
             </div>
@@ -599,7 +599,7 @@
                   <th>Condition</th>
                   <th style="width:42%">Risk Score</th>
                   <th>Assessment</th>
-                  <th>Model</th>
+                  <!-- <th>Model</th> -->
                 </tr>
               </thead>
               <tbody>
@@ -621,17 +621,20 @@
                   <td>
                     {% if data.status == 'High Risk' %}
                     <span class="status-pill sp-high">&#9888; High Risk</span>
+                    <div style="font-size:12px; color:var(--muted); margin-top:4px;">Significant risk detected. Medical attention strongly advised.</div>
                     {% elif data.status == 'Moderate Risk' %}
                     <span class="status-pill sp-medium">&#9685; Moderate</span>
+                    <div style="font-size:12px; color:var(--muted); margin-top:4px;">Elevated risk markers found. Recommend consulting a doctor.</div>
                     {% elif data.status == 'Low Risk' %}
                     <span class="status-pill sp-low">&#10003; Low Risk</span>
+                    <div style="font-size:12px; color:var(--muted); margin-top:4px;">Parameters are within normal range. Keep up the healthy habits.</div>
                     {% else %}
                     <span class="status-pill sp-na">{{ data.status }}</span>
                     {% endif %}
                   </td>
-                  <td style="font-size:12px; color:var(--muted);">
+                  <!-- <td style="font-size:12px; color:var(--muted);">
                     {% if data.available %}<span style="color:var(--accent); font-weight:600;">&#9679; Active</span>{% else %}Pending{% endif %}
-                  </td>
+                  </td> -->
                 </tr>
                 {% endfor %}
               </tbody>
@@ -679,17 +682,17 @@
         <!-- Report Footer -->
         <div class="report-foot">
           <div class="foot-info">
-            <div><strong>Issued by:</strong> HealthScope AI Clinical Intelligence Platform</div>
+            <div><strong>Issued by:</strong> HealthScopeAI Clinical Intelligence Platform</div>
             <div style="margin-top:3px;">Report ID: <strong>#HS-{{ report.id }}</strong> &nbsp;&bull;&nbsp; Generated: {{ report.created_at|date:"d M Y, H:i" }}</div>
           </div>
           <div class="foot-actions">
-            <a href="{% url 'dashboard' session_id=patient.session_id %}" class="btn btn-outline">
-              &#128202; Dashboard
+            <a href="{% url 'select_analysis' %}" class="btn btn-outline">
+              📋 Select Analysis
             </a>
-            <a href="{% url 'blood_download_pdf' report_id=report.id %}" class="btn btn-primary" id="download-pdf-btn">
+            <button class="btn btn-primary" id="download-pdf-btn" onclick="window.print()">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Download PDF Report
-            </a>
+            </button>
           </div>
         </div>
 

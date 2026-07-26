@@ -679,8 +679,8 @@
       <!-- Actions -->
       <div class="actions-row" id="actions-row">
         <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a href="{% url 'dashboard' session_id=patient.session_id %}"
-             class="btn btn-outline" id="dashboard-btn">📊 View Dashboard</a>
+          <a href="{% url 'select_analysis' %}"
+             class="btn btn-outline" id="dashboard-btn">📋 Select Analysis</a>
           <a href="{% url 'image_upload' %}"
              class="btn btn-outline" id="upload-another-btn">🔄 Upload Another Scan</a>
         </div>

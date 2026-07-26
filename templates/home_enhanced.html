@@ -876,9 +876,6 @@
                 <a href="#services">Clinical Services</a>
                 <a href="#sample-report">Interactive Sample</a>
                 <a href="#consultation">Consultation</a>
-                {% if request.session.patient_session_id %}
-                <a href="{% url 'dashboard' session_id=request.session.patient_session_id %}">Dashboard</a>
-                {% endif %}
             </nav>
             <a href="{% url 'patient_info' %}" class="btn btn-primary">Analyze Report</a>
         </div>
@@ -927,7 +924,8 @@
                         <div class="narrative-card" data-step="2" onclick="switchMockup(2)">
                             <div class="step-num">STEP 02</div>
                             <h3>Select Diagnosis Stream</h3>
-                            <p>Choose between targeted blood biomarker suite interpretation or comprehensive MRI/CT scan
+                            <p>Choose between targeted Blood Report Analysis suite interpretation or comprehensive
+                                MRI/CT scan
                                 structure scans.</p>
                         </div>
 
@@ -997,7 +995,7 @@
                                         <div class="picker-option selected">
                                             <div class="picker-radio"></div>
                                             <div>
-                                                <div style="font-weight: 600; font-size: 13px;">Blood Biomarker Suite
+                                                <div style="font-weight: 600; font-size: 13px;">Blood Report Analysis
                                                 </div>
                                                 <div style="font-size: 11px; color: var(--muted);">CBC, Liver &
                                                     Kidney panels</div>
@@ -1008,8 +1006,8 @@
                                             <div>
                                                 <div style="font-weight: 600; font-size: 13px;">Radiology MRI/CT Scope
                                                 </div>
-                                                <div style="font-size: 11px; color: var(--muted);">Brain, thoracic, or
-                                                    joint scan analysis</div>
+                                                <div style="font-size: 11px; color: var(--muted);">Brain, Alzheimer
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -1085,7 +1083,7 @@
                                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                             </svg>
                         </div>
-                        <h3 style="font-family: var(--font-display); font-size: 24px;">Blood Biomarker Suite</h3>
+                        <h3 style="font-family: var(--font-display); font-size: 24px;">Blood Report Analysis</h3>
                         <p style="color: var(--muted); font-size: 14px;">
                             Our deep-parse engine maps blood chemistry results against strict physiological cohorts to
                             isolate underlying wellness biomarkers.
@@ -1095,9 +1093,9 @@
                             <span class="meta" style="text-transform: uppercase; font-size: 11px;">Supported Lab
                                 Inputs</span>
                             <ul class="feature-spec-list">
-                                <li>Complete Blood Count (CBC, Hemoglobin, WBC)</li>
-                                <li>Metabolic & Liver Function Panels (ALT, AST, ALP)</li>
-                                <li>Kidney Indicators (eGFR, Creatinine, Urea)</li>
+                                <li>Complete Blood Count For Anemia</li>
+                                <li>Liver Function Panels</li>
+                                <li>Kidney Indicators</li>
                             </ul>
                         </div>
                     </div>
@@ -1120,9 +1118,9 @@
                             <span class="meta" style="text-transform: uppercase; font-size: 11px;">Supported Diagnostic
                                 Scans</span>
                             <ul class="feature-spec-list">
-                                <li>Brain MRI & CT (structural tissue classification)</li>
-                                <li>Spine, Joints & Bone Scans (density, wear)</li>
-                                <li>Verifiable raw DICOM formats & medical PDFs</li>
+                                <li>Brain Tumor</li>
+                                <li>Alzheimer</li>
+
                             </ul>
                         </div>
                     </div>
@@ -1159,7 +1157,8 @@
                     <div class="report-tabs">
                         <button class="report-tab-btn active" onclick="switchReportTab('highlights')">Report
                             Highlights</button>
-                        <button class="report-tab-btn" onclick="switchReportTab('biomarkers')">Blood Biomarkers</button>
+                        <button class="report-tab-btn" onclick="switchReportTab('biomarkers')">Blood Report
+                            Analysis</button>
                         <button class="report-tab-btn" onclick="switchReportTab('imaging')">Radiology Scope</button>
                     </div>
 
@@ -1170,7 +1169,8 @@
                                 <div class="status-dot yellow"></div>
                                 <div style="flex: 1;">
                                     <div style="font-weight: 600; font-size: 14px;">Elevated Cardiovascular Metric</div>
-                                    <div class="meta" style="font-size: 12px; margin-top: 2px;">Total LDL Cholesterol is at 134 mg/dL. Recommending a physical follow-up.</div>
+                                    <div class="meta" style="font-size: 12px; margin-top: 2px;">Total LDL Cholesterol is
+                                        at 134 mg/dL. Recommending a physical follow-up.</div>
                                 </div>
                             </div>
 

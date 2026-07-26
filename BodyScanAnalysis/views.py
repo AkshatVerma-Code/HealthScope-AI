@@ -8,7 +8,7 @@ def image_upload(request):
     """Medical image upload page."""
     session_id = request.session.get('patient_session_id')
     if not session_id:
-        return redirect('patient_info')
+        return redirect('patient_info_enchanced')
 
     patient = get_object_or_404(PatientSession, session_id=session_id)
 
@@ -73,7 +73,7 @@ def image_result(request, image_id):
     session_id = request.session.get('patient_session_id')
 
     if str(medical_image.session.session_id) != str(session_id):
-        return redirect('patient_info')
+        return redirect('patient_info_enchanced')
 
     # Prepare class score list for chart rendering (filtering out U-Net metadata keys)
     class_scores = [

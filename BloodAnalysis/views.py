@@ -12,7 +12,7 @@ def blood_upload(request):
     """Blood report upload page."""
     session_id = request.session.get('patient_session_id')
     if not session_id:
-        return redirect('patient_info')
+        return redirect('patient_info_enchanced')
 
     patient = get_object_or_404(PatientSession, session_id=session_id)
 

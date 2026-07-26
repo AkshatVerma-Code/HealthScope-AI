@@ -47,17 +47,3 @@ def select_analysis(request):
 
     patient = get_object_or_404(PatientSession, session_id=session_id)
     return render(request, 'select_analysis_enhanced.html', {'patient': patient})
-
-
-def dashboard(request, session_id):
-    """Full session summary dashboard."""
-    patient = get_object_or_404(PatientSession, session_id=session_id)
-    blood_reports = BloodReport.objects.filter(session=patient).order_by('-created_at')
-    medical_images = MedicalImage.objects.filter(session=patient).order_by('-created_at')
-
-    context = {
-        'patient': patient,
-        'blood_reports': blood_reports,
-        'medical_images': medical_images,
-    }
-    return render(request, 'dashboard.html', context)
